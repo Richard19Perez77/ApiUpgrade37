@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
  */
 class ApiUpgrade37App : Application() {
 
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
