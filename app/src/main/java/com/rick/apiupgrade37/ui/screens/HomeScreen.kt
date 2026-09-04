@@ -18,6 +18,14 @@ import androidx.compose.ui.unit.dp
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.catalogItems
 
+/**
+ * The catalog: one card per entry in [catalogItems], each opening a feature screen.
+ *
+ * [listPadding] arrives from the Scaffold in [com.rick.apiupgrade37.ui.Api37App] rather
+ * than being consumed there, because it has to reach the LazyColumn's contentPadding. If
+ * the parent applied it as a Modifier instead, the last card would be clipped by the tab
+ * bar rather than scrolling clear of it.
+ */
 @Composable
 fun HomeScreen(
     listPadding: PaddingValues = PaddingValues(),
@@ -25,6 +33,8 @@ fun HomeScreen(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
+        // contentPadding scrolls with the content; a padding Modifier would not. That is
+        // the difference between the list ending above the tab bar and being cut off by it.
         contentPadding = PaddingValues(
             start = 16.dp,
             end = 16.dp,
@@ -33,6 +43,8 @@ fun HomeScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        // A LazyColumn item may emit several composables; the list places them in sequence
+        // along its main axis, so this header does not need its own Column wrapper.
         item {
             Text("Android 17 / API 37 lab", style = MaterialTheme.typography.headlineSmall)
             Text(

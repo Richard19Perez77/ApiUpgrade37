@@ -1,3 +1,11 @@
+# Gradle version catalog: the single place dependency versions are declared. Modules refer
+# to entries by alias (libs.androidx.core.ktx), so a bump here reaches the whole build.
+#
+# Alias naming: dashes in an alias become dots in Kotlin, which is why
+# `androidx-core-ktx` is used as `libs.androidx.core.ktx`. Gradle also reserves some
+# prefixes, so an alias like `androidx-compose-material3-window-size-class` is rejected
+# outright; the last segment has to be renamed (…-window-sizeclass) to be legal.
+
 [versions]
 agp = "9.3.2"
 coreKtx = "1.19.0"
@@ -7,6 +15,8 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 kotlin = "2.4.10"
+# The Compose BOM. Every androidx.compose.* library below is declared without a version and
+# takes it from here, so this is the only line to change when upgrading Compose.
 composeBom = "2026.08.00"
 
 [libraries]
@@ -14,9 +24,13 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# Supplies androidx.lifecycle.compose.LocalLifecycleOwner, which AlarmListenerScreen uses to
+# re-check the exact-alarm grant on resume.
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+
+# Versionless by design — the BOM above resolves these.
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -27,4 +41,5 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+# Provided by the Kotlin plugin itself since Kotlin 2.0, hence version.ref = "kotlin".
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

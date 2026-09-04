@@ -1,3 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Only user-visible chrome lives here. The long explanations on each feature screen are
+  Kotlin string literals next to the code they describe, which is a deliberate trade: it
+  costs translatability, but it keeps an explanation and the API call it explains in the
+  same file. A shipping app should move display text into this file instead.
+
+  The two channel names are read in ApiUpgrade37App.createNotificationChannels(). Channel
+  names are shown to the user in system settings, so they must be resources; channel IDs
+  are not, and stay as constants in that class.
+-->
 <resources>
     <string name="app_name">API 37 Lab</string>
     <string name="notification_channel_live">Live updates</string>

@@ -6,7 +6,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+// Only bodyLarge is overridden; every other style falls back to the Material 3 default.
+// The samples lean on the named defaults (titleMedium, labelMedium, bodySmall) so that
+// text still scales correctly when a screen is squeezed into an App Bubble.
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,

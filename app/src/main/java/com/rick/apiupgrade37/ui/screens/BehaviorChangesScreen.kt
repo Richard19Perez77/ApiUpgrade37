@@ -3,11 +3,14 @@ package com.rick.apiupgrade37.ui.screens
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
@@ -82,10 +85,18 @@ fun BehaviorChangesScreen(
             Text("deviceSdk=${Build.VERSION.SDK_INT} isAndroid17=${AndroidApis.isAndroid17}")
         }
     }
+    // This screen is reachable two ways: as a top-level tab (onBack == null), where the
+    // tab bar owns the bottom inset, and as a catalog entry, where FeatureScaffold supplies
+    // its own bars. Hence the two branches.
     if (onBack == null) {
         Scaffold { padding ->
+            // Carry the horizontal insets through. In landscape they hold the display
+            // cutout and the side navigation bar, and dropping them puts text under both.
+            val direction = LocalLayoutDirection.current
             body(
                 PaddingValues(
+                    start = padding.calculateStartPadding(direction),
+                    end = padding.calculateEndPadding(direction),
                     top = padding.calculateTopPadding(),
                     bottom = listPadding.calculateBottomPadding()
                 )

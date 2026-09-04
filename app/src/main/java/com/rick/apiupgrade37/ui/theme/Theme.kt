@@ -32,14 +32,26 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * Standard Material 3 theme, kept close to the Studio template so the samples stay the
+ * interesting part of the project.
+ *
+ * Worth knowing for Android 17: because the activity no longer restarts on a `colorMode`
+ * configuration change by default, a theme that reads configuration must survive being
+ * recomposed rather than recreated. This one does — `isSystemInDarkTheme()` is a
+ * composition-local read, so a change reaches it without any Activity involvement. Themes
+ * that cache a scheme in an Activity field would silently keep the stale colors.
+ */
 @Composable
 fun ApiUpgrade37Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
+        // Dynamic color (wallpaper-derived Material You) is API 31 and later. Below that
+        // the hardcoded schemes above are the fallback — this is the one place in the
+        // project where a version check is about aesthetics rather than an API existing.
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

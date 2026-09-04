@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The XML theme only styles the window before Compose draws: the background behind the
+  first frame and the shape of the launch. Everything visible afterwards comes from
+  ApiUpgrade37Theme in ui/theme/Theme.kt.
+
+  NoActionBar matters. Compose supplies its own TopAppBar via FeatureScaffold, and a
+  platform action bar on top of it would produce two stacked title bars.
+
+  Known rough edge: this inherits a Light parent, so the pre-Compose window flashes light
+  even in dark mode. A production app would add res/values-night/themes.xml, or inherit a
+  DayNight parent, so the launch matches the resolved Compose scheme.
+
+  Nothing here sets status or navigation bar colors. enableEdgeToEdge() in MainActivity
+  owns that, and it is the supported route now that apps targeting 35+ cannot opt out of
+  edge-to-edge.
+-->
 <resources>
 
     <style name="Theme.ApiUpgrade37" parent="android:Theme.Material.Light.NoActionBar" />
