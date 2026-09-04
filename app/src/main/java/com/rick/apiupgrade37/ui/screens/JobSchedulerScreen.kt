@@ -18,10 +18,58 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import java.util.concurrent.TimeUnit
 
 /**
+ *
+ *  Provide detailed debugging information about why a scheduled job is waiting to execute.
+ *
+ *  JobScheduler is a batch scheduling API
+ *
+ *  Constraints can impede jobs
+ *      Device not charging
+ *      No network connectivity
+ *      Idle state requirements
+ *      Other jobs running
+ *
+ *  Why can be understood when a job is pending, then debugged.
+ *
+ *  getPendingJobReasonStats()
+ *      More simple, complete, informative, comprehensive and efficient.
+ *
+ *  Schedule a job and dump stats
+ *      graceful fallback
+ *
+ *  Static reason list - offers resolutions
+ *
+ *  Real-World Use Cases
+ *      Background Sync Job - debug why it isn't running
+ *      Cloud Backup Job - debug backup delays
+ *      Analytics Upload - debug analytics not sending
+ *
+ *  Benefits:
+ *      Consolidated API
+ *      All reason
+ *      Duration data
+ *      Debugging efficiency
+ *      Better UX
+ *      No Permissions
+ *
+ *  getPendingJobReasonStats()
+ *      one api call
+ *      all reasons
+ *      duration data
+ *      easier debugging
+ *      better us
+ *
+ *  The Big Picture:
+ *      faster bug fixes
+ *      better user communication
+ *      improved app reliability
+ *      happier users
+ *
  * - API 37: JobScheduler.getPendingJobReasonStats(jobId) returns PENDING_JOB_REASON_*
  *   mapped to Duration (cumulative wait).
  *
- * - Pre-37: API 34 getPendingJobReason(id). API 36 getPendingJobReasonsHistory(id).
+ * - Pre-37: API 34 getPendingJobReason(id).
+ *      API 36 getPendingJobReasonsHistory(id).
  *
  * - Nicety — jobs still schedule; this is a better debug readout.
  */

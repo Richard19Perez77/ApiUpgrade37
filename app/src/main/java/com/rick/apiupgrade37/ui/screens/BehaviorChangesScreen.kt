@@ -118,13 +118,10 @@ fun BehaviorChangesScreen(
             Text("deviceSdk=${Build.VERSION.SDK_INT} isAndroid17=${AndroidApis.isAndroid17}")
         }
     }
-    // This screen is reachable two ways: as a top-level tab (onBack == null), where the
-    // tab bar owns the bottom inset, and as a catalog entry, where FeatureScaffold supplies
-    // its own bars. Hence, the two branches.
+    // This screen is reachable two ways: as a top-level tab (onBack == null), where the tab bar owns the bottom inset, and as a catalog entry, where FeatureScaffold supplies its own bars. Hence, the two branches.
     if (onBack == null) {
         Scaffold { padding ->
-            // Carry the horizontal insets through. In landscape they hold the display
-            // cutout and the side navigation bar, and dropping them puts text under both.
+            // Carry the horizontal insets through. In landscape, they hold the display cutout and the side navigation bar, and dropping them puts text under both.
             val direction = LocalLayoutDirection.current
             body(
                 PaddingValues(

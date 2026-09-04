@@ -14,22 +14,23 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import com.rick.apiupgrade37.ui.rememberNotificationGate
 
 /**
- * - API 37: Notification.MetricStyle + Notification.Metric (value, label, optional
- *   SEMANTIC_STYLE_*) as a platform template.
+ * - API 37: Notification.MetricStyle + Notification.Metric (value, label, optional SEMANTIC_STYLE_*) as a platform template.
+ *
  * - Pre-37: BigText / Inbox / custom RemoteViews for health, timer, or travel readouts.
- * - Nicety — old styles still post. POST_NOTIFICATIONS is required on 17 devices, but
- *   that is API 33.
+ *
+ * - Nicety — old styles still post.
+ *      POST_NOTIFICATIONS is required on 17 devices, but that is API 33.
  */
 @Composable
 fun MetricStyleScreen(onBack: () -> Unit) {
+
     val context = LocalContext.current
     val notifications = rememberNotificationGate()
 
     FeatureScaffold("MetricStyle", onBack) { padding ->
         FeatureBody(
             padding,
-            "Notification.MetricStyle (API 37) is a template for health, timers, stopwatch, " +
-                "and travel metrics. Each Metric has a value + label and optional semantic style."
+            "Notification.MetricStyle (API 37) is a template for health, timers, stopwatch, and travel metrics. Each Metric has a value + label and optional semantic style."
         ) {
             Button(
                 enabled = AndroidApis.isAndroid17,

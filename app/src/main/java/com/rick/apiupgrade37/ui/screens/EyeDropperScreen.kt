@@ -24,11 +24,26 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: Intent.ACTION_OPEN_EYE_DROPPER opens a system sampler and returns
- *   Intent.EXTRA_COLOR (packed ARGB).
  *
- * - Pre-37: No platform eyedropper. Apps captured the screen (MediaProjection /
- *   screenshots) just to read one pixel.
+ *  System-wide eyedropper tool
+ *      Pick any color from the screen, simple
+ *      System provided tool, offers privacy
+ *      No permissions needed, secure
+ *      Return one color, not entire screen
+ *      System UI vs Custom Impl, offers consistent impl
+ *      Write 10 lines vs 100s, efficient
+ *
+ *  Activity with result launcher
+ *  Intent with System UI
+ *  Return color value
+ *
+ *  Low complexity, privacy improved, less complex, no screen recording and no permissions.
+ *      - Privacy by default -
+ *
+ * - API 37: Intent.ACTION_OPEN_EYE_DROPPER opens a system sampler and returns Intent.EXTRA_COLOR (packed ARGB).
+ *
+ * - Pre-37: No platform eyedropper.
+ *      Apps captured the screen (MediaProjection / screenshots) just to read one pixel.
  *
  * - Nicety — optional unless you were capturing the display only to sample a color.
  */

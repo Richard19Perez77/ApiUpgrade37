@@ -21,15 +21,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * - API 37: CameraCharacteristics.INFO_DEVICE_TYPE (built-in / USB / virtual),
- *   ImageFormat.RAW14, MediaFormat.MIMETYPE_VIDEO_VVC, and
- *   MediaRecorder.setVideoEncodingQuality() for constant-quality encode.
+ * - API 37: CameraCharacteristics.INFO_DEVICE_TYPE (built-in / USB / virtual), ImageFormat.RAW14, MediaFormat.MIMETYPE_VIDEO_VVC, and MediaRecorder.setVideoEncodingQuality() for constant-quality encode.
  *
- * - Pre-37: INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1; bitrate via
- *   setVideoEncodingBitRate().
+ * - Pre-37: INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1; bitrate via setVideoEncodingBitRate().
  *
- * - Nicety — new capture/codec knobs. Need if you use CameraX on Android 17:
- *   upgrade to 1.5.2 / 1.6.0+ or a dynamic-range mode can crash.
+ * - Nicety — new capture/codec knobs. Need if you use CameraX on Android 17: upgrade to 1.5.2 / 1.6.0+ or a dynamic-range mode can crash.
  */
 @Composable
 fun CameraMediaScreen(onBack: () -> Unit) {
@@ -71,7 +67,9 @@ fun CameraMediaScreen(onBack: () -> Unit) {
 
 /**
  *
- * Both cameraIdList and getCameraCharacteristics throw CameraAccessException when the camera service is unavailable, which is routine on emulators without a configured camera and on devices where another app holds the camera. Uncaught, it takes the screen down on open.
+ * Both cameraIdList and getCameraCharacteristics throw CameraAccessException when the camera service is unavailable, which is routine on emulators without a configured camera and on devices where another app holds the camera.
+ *
+ * Uncaught, it takes the screen down on open.
  *
  */
 private fun describeCameras(context: Context): String = try {

@@ -18,11 +18,9 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: AppFunctionManager.registerAppFunction exposes a tool (here createNote)
- *   that returns a GenericDocument for on-device agents.
+ * - API 37: AppFunctionManager.registerAppFunction exposes a tool (here createNote) that returns a GenericDocument for on-device agents.
  *
- * - Pre-37: No platform AppFunctions / Android MCP. Apps were not discoverable as
- *   agent tools except via custom APIs.
+ * - Pre-37: No platform AppFunctions / Android MCP. Apps were not discoverable as agent tools except via custom APIs.
  *
  * - Nicety — optional agent integration. The app runs fine unregistered.
  */

@@ -19,12 +19,13 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.catalogItems
 
 /**
+ *
  * The catalog: one card per entry in [catalogItems], each opening a feature screen.
  *
- * [listPadding] arrives from the Scaffold in [com.rick.apiupgrade37.ui.Api37App] rather
- * than being consumed there, because it has to reach the LazyColumn's contentPadding. If
- * the parent applied it as a Modifier instead, the last card would be clipped by the tab
- * bar rather than scrolling clear of it.
+ * [listPadding] arrives from the Scaffold in [com.rick.apiupgrade37.ui.Api37App] rather than being consumed there, because it has to reach the LazyColumn's contentPadding.
+ *
+ * If the parent applied it as a Modifier instead, the last card would be clipped by the tab bar rather than scrolling clear of it.
+ *
  */
 @Composable
 fun HomeScreen(

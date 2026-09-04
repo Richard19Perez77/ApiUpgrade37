@@ -19,13 +19,14 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import java.net.UnknownHostException
 
 /**
- * - API 37: DnsResolver HTTPS-record query returns HttpsEndpoint / ECH configs.
- *   network_security_config adds a domainEncryption element (opportunistic here).
- *   Certificate Transparency is on by default at target 37.
- * - Pre-37: Classic TLS with cleartext SNI. On API 36, CT was opt-in via
- *   certificateTransparency enabled=true.
+ * - API 37: DnsResolver HTTPS-record query returns HttpsEndpoint / ECH configs. network_security_config adds a domainEncryption element (opportunistic here).
+ *      Certificate Transparency is on by default at target 37.
+ *
+ * - Pre-37: Classic TLS with cleartext SNI.
+ *      On API 36, CT was opt-in via certificateTransparency enabled=true.
+ *
  * - Mixed — CT default-on is a need (hosts without CT logs can fail).
- *   Opportunistic ECH and the HTTPS DNS query are niceties.
+ *      Opportunistic ECH and the HTTPS DNS query are niceties.
  */
 @Composable
 fun NetworkSecurityScreen(onBack: () -> Unit) {
@@ -35,12 +36,7 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
     FeatureScaffold("ECH & CT", onBack) { padding ->
         FeatureBody(
             padding,
-            "Encrypted Client Hello hides SNI. API 37 adds DnsResolver HTTPS-record queries " +
-                "and a <domainEncryption> network-security-config element " +
-                "(opportunistic | enabled | disabled).\n\n" +
-                "Certificate Transparency is ON by default when you target 37 " +
-                "(on 36 you opted in with <certificateTransparency enabled=\"true\" />).\n\n" +
-                "See res/xml/network_security_config.xml for the XML you should ship."
+            "Encrypted Client Hello hides SNI. API 37 adds DnsResolver HTTPS-record queries and a <domainEncryption> network-security-config element (opportunistic | enabled | disabled).\n\n Certificate Transparency is ON by default when you target 37 (on 36 you opted in with <certificateTransparency enabled=\"true\" />).\n\n See res/xml/network_security_config.xml for the XML you should ship."
         ) {
             Button(
                 enabled = AndroidApis.isAndroid17,

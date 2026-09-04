@@ -13,14 +13,13 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: AudioDeviceInfo.TYPE_BLE_HEARING_AID distinguishes LE hearing aids.
- *   STREAM_ASSISTANT and MODE_ASSISTANT_CONVERSATION are independent of media volume.
  *
- * - Pre-37: TYPE_HEARING_AID (classic, API 28) and TYPE_BLE_HEADSET lumped LE aids
- *   with generic LE headsets. USAGE_ASSISTANT existed from API 26 but shared media volume.
+ * - Pre-37: TYPE_HEARING_AID (classic, API 28) and TYPE_BLE_HEADSET lumped LE aids with generic LE headsets.
+ *      USAGE_ASSISTANT existed from API 26 but shared media volume.
  *
  * - Nicety — unless you are a hearing or assistant app, then routing/volume is a need.
- *   Do not enter MODE_ASSISTANT_CONVERSATION from a normal app.
+ *      Do not enter MODE_ASSISTANT_CONVERSATION from a normal app.
+ *
  */
 @Composable
 fun HearingAidScreen(onBack: () -> Unit) {

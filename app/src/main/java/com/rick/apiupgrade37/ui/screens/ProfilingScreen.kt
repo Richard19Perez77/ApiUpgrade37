@@ -11,12 +11,21 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: ProfilingManager.addProfilingTriggers registers COLD_START, OOM,
- *   KILL_EXCESSIVE_CPU_USAGE, and ANOMALY so the system can dump traces/heaps
- *   without a manual requestProfiling() call.
- * - Pre-37: ProfilingManager existed from API 35 for on-demand captures. Before
- *   that: Debug.dumpHprofData() or manual traces.
- * - Nicety — debug/ops. Useful next to the Android 17 memory killer, not required to run.
+ *
+ *  Automatic cold start startup analysis tracing.
+ *  OOM auto heap dump for perfect memory leak analysis.
+ *  CPU kill was impossible to detect, now automatic, can catch binder and spam/memory issues.
+ *  Anomalies like binder, spam and memory issues are possible to detect.
+ *
+ * - API 37: ProfilingManager.addProfilingTriggers registers COLD_START, OOM, KILL_EXCESSIVE_CPU_USAGE, and ANOMALY.
+ *      This is so the system can dump traces/heaps without a manual requestProfiling() call.
+ *
+ * - Pre-37: ProfilingManager existed from API 35 for on-demand captures.
+ *      Before that: Debug.dumpHprofData() or manual traces.
+ *
+ * - Nicety — debug/ops.
+ *      Useful next to the Android 17 memory killer, not required to run.
+ *
  */
 @Composable
 fun ProfilingScreen(onBack: () -> Unit) {

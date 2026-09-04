@@ -20,14 +20,12 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: ContactsPickerSessionContract.ACTION_PICK_CONTACTS returns a temporary
- *   session Uri for only the people and fields the user selected (no READ_CONTACTS).
+ * - API 37: ContactsPickerSessionContract.ACTION_PICK_CONTACTS returns a temporary session Uri for only the people and fields the user selected (no READ_CONTACTS).
  *
- * - Pre-37: Intent.ACTION_PICK on Contacts.CONTENT_URI, or READ_CONTACTS plus
- *   ContactsContract queries over the whole address book.
+ * - Pre-37: Intent.ACTION_PICK on Contacts.CONTENT_URI, or READ_CONTACTS plus ContactsContract queries over the whole address book.
  *
  * - Mixed — targeting 37 auto-upgrades ACTION_PICK to the new UI (need).
- *   Field filters / multi-select extras and dropping READ_CONTACTS are niceties.
+ *      Field filters / multi-select extras and dropping READ_CONTACTS are niceties.
  */
 @Composable
 fun ContactsPickerScreen(onBack: () -> Unit) {

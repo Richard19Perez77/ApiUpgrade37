@@ -16,14 +16,11 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
  * - API 37: AccessibilityEvent.setTextChangeTypes() (IN_COMPOSITION, conversion
- *   suggestion, COMMITTED_BY_IME) so screen readers can tell composing CJKV from a
- *   commit. Hardware-keyboard password fields no longer flash the last char.
+ suggestion, COMMITTED_BY_IME) so screen readers can tell composing CJKV from a commit. Hardware-keyboard password fields no longer flash the last char.
+ *S
+ * - Pre-37: TYPE_VIEW_TEXT_CHANGED with no composition vs commit distinction. Password fields could echo the last typed character on a hardware keyboard.
  *
- * - Pre-37: TYPE_VIEW_TEXT_CHANGED with no composition vs commit distinction.
- *   Password fields could echo the last typed character on a hardware keyboard.
- *
- * - Need — if you ship an IME. Nicety for ordinary apps (EditText/TextView pick this
- *   up when the IME provides TextAttribute).
+ * - Need — if you ship an IME. Nicety for ordinary apps (EditText/TextView pick this up when the IME provides TextAttribute).
  */
 @Composable
 fun AccessibilityImeScreen(onBack: () -> Unit) {

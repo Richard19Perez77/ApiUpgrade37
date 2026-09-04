@@ -20,12 +20,37 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: PhotoPickerUiCustomizationParams sets thumbnail aspect ratio (here
- *   portrait 9:16). PhotoPickerSelectionParams and EmbeddedPhotoPickerFeatureInfo
- *   attach those params to the embedded picker.
- * - Pre-37: PickVisualMedia / ACTION_PICK_IMAGES with no aspect-ratio extras
- *   (Photo Picker itself arrived in API 33).
+ *
+ *  Customize system photo picker.
+ *      Thumbnail aspect ratios
+ *      Selection parameters
+ *      Embedded picker support
+ *
+ *  Introduced in api 33 android 13
+ *      No storage permissions and users can select photos and videos.
+ *      Replaces READ_EXTERNAL_STORAGE permission model
+ *      After, app only gets selected URI's
+ *
+ *  Use Cases:
+ *      Social media apps
+ *      Photo editing
+ *      Video apps
+ *
+ *  API 37 improvements
+ *      Customize UX
+ *      Built in limit offers control
+ *      Specific types now offer precision
+ *      Embedded in UI now gives integration
+ *      Customizable with PhotoPickerUiCustomizationParams for flexibility
+ *
+ *
+ * - API 37: PhotoPickerUiCustomizationParams sets thumbnail aspect ratio (here portrait 9:16).
+ *      PhotoPickerSelectionParams and EmbeddedPhotoPickerFeatureInfo attach those params to the embedded picker.
+ *
+ * - Pre-37: PickVisualMedia / ACTION_PICK_IMAGES with no aspect-ratio extras (Photo Picker itself arrived in API 33).
+ *
  * - Nicety — PickVisualMedia still works; 9:16 is UI polish for social/video apps.
+ *
  */
 @Composable
 fun PhotoPickerScreen(onBack: () -> Unit) {
@@ -73,12 +98,7 @@ fun PhotoPickerScreen(onBack: () -> Unit) {
     FeatureScaffold("Photo picker", onBack) { padding ->
         FeatureBody(
             padding,
-            "The system Photo Picker arrived in API 33 as the replacement for broad " +
-                "READ_EXTERNAL_STORAGE. API 37 adds PhotoPickerUiCustomizationParams so " +
-                "thumbnails can be portrait 9:16 (social/video apps) or square.\n\n" +
-                "ActivityResultContracts.PickVisualMedia() is still the right launch path for " +
-                "a standalone picker. The new params attach to the embedded picker via " +
-                "EmbeddedPhotoPickerFeatureInfo (SurfaceControlViewHost)."
+            "The system Photo Picker arrived in API 33 as the replacement for broad READ_EXTERNAL_STORAGE. API 37 adds PhotoPickerUiCustomizationParams so thumbnails can be portrait 9:16 (social/video apps) or square.\n\nActivityResultContracts.PickVisualMedia() is still the right launch path for a standalone picker. The new params attach to the embedded picker via EmbeddedPhotoPickerFeatureInfo (SurfaceControlViewHost)."
         ) {
             // These values come from API 37 classes, so the gate is SDK_INT, not an SDK
             // extension version. Checking an extension here was backwards: it could show

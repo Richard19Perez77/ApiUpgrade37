@@ -16,12 +16,22 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
+ *  Ultra-Wideband UWB
+ *
+ *  DL-TDoA Downlink Time Difference of Arrival
+ *      Queries device's UWB hardware capabilities and shows whether DL-TDoA positioning is supported.
+ *      Used in IOT like digital car keys and smart home devices.
+ *      Improves accuracy, coverage, battery, scale, and practical.
+ *
  * - API 37: RangingManager capabilities expose uwbCapabilities.isDlTdoaSupported
  *   (downlink TDoA vs multiple anchors). Starting a session uses DlTdoaRangingParams
  *   (commented here — needs FiRa OOB from real anchors).
+ *
  * - Pre-37: RangingManager itself is API 36 without this DL-TDoA path. Older UWB
  *   apps used vendor/FiRa APIs outside this manager.
+ *
  * - Nicety — only if you range. This screen only reads capabilities.
+ *
  */
 @Composable
 fun UwbRangingScreen(onBack: () -> Unit) {

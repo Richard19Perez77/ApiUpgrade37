@@ -26,14 +26,35 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: setExactAndAllowWhileIdle(type, trigger, tag, executor, OnAlarmListener)
- *   fires in-process with no BroadcastReceiver.
  *
- * - Pre-37: The only allow-while-idle exact form took a PendingIntent, so you needed
- *   a receiver (and took an extra process wake).
+ *  Improve how apps can schedule exact alarms that fire in-process without needing a [android.content.BroadcastReceiver] or [PendingIntent]
+ *      Direct OnAlarmListener callback for efficiency
+ *      Process Wake is In-Process callback only for battery saving
+ *      No Manifest entry needed is cleaner
+ *      Intent Filters are not need, much simpler
+ *      Direct access to app state, easier
  *
- * - Nicety — old PendingIntent form still works. Exact-alarm permission itself is a
- *   need, but that policy is API 31/33, not 37.
+ *  Permissions challenge
+ *      Old permission not a blocker, re-checks and updates state
+ *          No Stale UI
+ *
+ *  Use Cases:
+ *      Socket Keepalive
+ *      Sync Tick
+ *      Scheduled Notification
+ *
+ *  API 37 improvements
+ *      Direct callback
+ *      Cleaner code
+ *      Better battery
+ *      Simpler logic
+ *      Easier code
+ *
+ * - API 37: setExactAndAllowWhileIdle(type, trigger, tag, executor, OnAlarmListener) fires in-process with no BroadcastReceiver.
+ *
+ * - Pre-37: The only allow-while-idle exact form took a PendingIntent, so you needed a receiver (and took an extra process wake).
+ *
+ * - Nicety: Old PendingIntent form still works. Exact-alarm permission itself is a need, but that policy is API 31/33, not 37.
  */
 @Composable
 fun AlarmListenerScreen(onBack: () -> Unit) {

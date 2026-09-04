@@ -19,10 +19,15 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
- * - API 37: Request ACCESS_LOCAL_NETWORK (NEARBY_DEVICES group). Until granted,
- *   unprivileged LAN sockets are blocked unless you use a system device picker.
+ *
+ * - API 37: Request ACCESS_LOCAL_NETWORK (NEARBY_DEVICES group).
+ *      Until granted, unprivileged LAN sockets are blocked unless you use a system device picker.
+ *
  * - Pre-37: INTERNET was enough to reach 192.168.x.x, mDNS printers, Chromecast, IoT.
- * - Need — if this app talks to the LAN. Skip it if you never leave the public internet.
+ *
+ * - Need — if this app talks to the LAN.
+ *      Skip it if you never leave the public internet.
+ *
  */
 @Composable
 fun LocalNetworkScreen(onBack: () -> Unit) {
