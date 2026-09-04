@@ -17,6 +17,9 @@ import com.rick.apiupgrade37.ui.rememberNotificationGate
 
 /**
  *
+ *  Semantic Color Annotations
+ *
+ *
  * - API 37: Notification.createSemanticStyleAnnotation (SAFE / CAUTION / DANGER / INFO) plus setRequestPromotedOngoing(true).
  *      Custom RemoteViews are memory-capped more tightly.
  *
