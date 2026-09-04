@@ -1,6 +1,5 @@
 package com.rick.apiupgrade37.ui.screens
 
-import android.os.Build
 import android.ranging.RangingManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -23,31 +22,16 @@ fun UwbRangingScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
-        val rm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            context.getSystemService(RangingManager::class.java)
-        } else {
-            // Pre-36: UWB via androidx.core.uwb / OEM SDKs. DL-TDoA is API 37.
-            null
-        }
+        val rm = context.getSystemService(RangingManager::class.java)
         val executor = Executors.newSingleThreadExecutor()
         val cb = RangingManager.RangingCapabilitiesCallback { caps ->
-            val uwb = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-                caps.uwbCapabilities
-            } else {
-                TODO("VERSION.SDK_INT < BAKLAVA")
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
-                    "tech=${caps.technologyAvailability}"
-            }
+            val uwb = caps.uwbCapabilities
+            status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
+                "tech=${caps.technologyAvailability}"
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            rm?.registerCapabilitiesCallback(executor, cb)
-        }
+        rm.registerCapabilitiesCallback(executor, cb)
         onDispose {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-                rm?.unregisterCapabilitiesCallback(cb)
-            }
+            rm.unregisterCapabilitiesCallback(cb)
             executor.shutdown()
         }
     }

@@ -32,11 +32,11 @@ import com.rick.apiupgrade37.ui.theme.ApiUpgrade37Theme
  */
 class MainActivity : ComponentActivity() {
 
-    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // @RequiresApi must NOT be placed on onCreate: the system still calls it on API 24–36.
         if (AndroidApis.isAndroid17) {
             val params = HandoffActivityParams.Builder()
                 .setAllowHandoffWithoutPackageInstalled(true)
@@ -51,6 +51,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Only invoked by the platform on API 37+ after [setHandoffEnabled].
+     * Safe to override on minSdk 24; older OS versions never call it.
+     */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     override fun onHandoffActivityDataRequested(
         handoffRequestInfo: HandoffActivityDataRequestInfo

@@ -1,6 +1,7 @@
 package com.rick.apiupgrade37.core
 
 import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 
 /**
  * Named SDK gates used throughout the sample.
@@ -23,6 +24,11 @@ object AndroidApis {
 
     val deviceSdk: Int get() = Build.VERSION.SDK_INT
 
+    /**
+     * Lint understands this as an API 37 gate, so `if (isAndroid17) { newApi() }`
+     * does not need a second `SDK_INT` check or a `TODO()` else-branch.
+     */
+    @get:ChecksSdkIntAtLeast(api = Build.VERSION_CODES.CINNAMON_BUN)
     val isAndroid17: Boolean get() = deviceSdk >= ANDROID_17
 
     fun sdkLabel(): String {

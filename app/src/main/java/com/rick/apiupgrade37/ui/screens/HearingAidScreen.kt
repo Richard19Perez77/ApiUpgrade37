@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
@@ -38,14 +39,15 @@ fun HearingAidScreen(onBack: () -> Unit) {
                 "peripherals keep controlling the assistant stream outside active playback.\n\n" +
                 "Users can route notifications/ring/alarm to the aid or the speaker independently."
         ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (AndroidApis.isAndroid17) {
                 Text("STREAM_ASSISTANT=${AudioManager.STREAM_ASSISTANT}")
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Text("USAGE_ASSISTANT=${AudioAttributes.USAGE_ASSISTANT}")
-            }
-            if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
                 Text("MODE_ASSISTANT_CONVERSATION=${AudioManager.MODE_ASSISTANT_CONVERSATION}")
+            } else {
+                // Pre-37: USAGE_ASSISTANT exists from API 26; STREAM_ASSISTANT / MODE_ASSISTANT_CONVERSATION are 37.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Text("USAGE_ASSISTANT=${AudioAttributes.USAGE_ASSISTANT} (API 26+)")
+                }
             }
             Text(devices)
             Text(

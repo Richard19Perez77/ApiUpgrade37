@@ -37,14 +37,13 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return@Button
+                    if (!AndroidApis.isAndroid17) return@Button
                     val resolver = DnsResolver(context, Looper.getMainLooper())
                     // Pre-37: DnsResolver.getInstance().query(..., Callback<List<InetAddress>>)
-                    // or rawQuery() for HTTPS records.
                     resolver.query(
                         /* network = */ null,
                         "cloudflare-ech.com",
-                        DnsResolver.FLAG_EMPTY,
+                        DnsResolver.TYPE_HTTPS,
                         ContextCompat.getMainExecutor(context),
                         DnsResolver.HTTPS_QUERY_WAIT_AUTO,
                         CancellationSignal(),
