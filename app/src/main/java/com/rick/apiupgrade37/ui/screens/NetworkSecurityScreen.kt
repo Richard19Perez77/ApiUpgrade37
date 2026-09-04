@@ -2,7 +2,6 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.net.DnsResolver
 import android.net.dns.HttpsEndpoint
-import android.os.Build
 import android.os.CancellationSignal
 import android.os.Looper
 import androidx.compose.material3.Button
@@ -21,13 +20,13 @@ import java.net.UnknownHostException
 
 @Composable
 fun NetworkSecurityScreen(onBack: () -> Unit) {
-    var status by remember { mutableStateOf("Tap to query HTTPS DNS (TYPE_HTTPS / ECH configs)") }
+    var status by remember { mutableStateOf("Tap to query HTTPS DNS (ECH configs)") }
     val context = LocalContext.current
 
     FeatureScaffold("ECH & CT", onBack) { padding ->
         FeatureBody(
             padding,
-            "Encrypted Client Hello hides SNI. API 37 adds DnsResolver TYPE_HTTPS queries " +
+            "Encrypted Client Hello hides SNI. API 37 adds DnsResolver HTTPS-record queries " +
                 "and a <domainEncryption> network-security-config element " +
                 "(opportunistic | enabled | disabled).\n\n" +
                 "Certificate Transparency is ON by default when you target 37 " +
@@ -39,11 +38,17 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
                 onClick = {
                     if (!AndroidApis.isAndroid17) return@Button
                     val resolver = DnsResolver(context, Looper.getMainLooper())
-                    // Pre-37: DnsResolver.getInstance().query(..., Callback<List<InetAddress>>)
+                    // HttpsEndpoint overload:
+                    //   query(network, domain, flags, executor, httpsWait, signal, Callback<HttpsEndpoint>)
+                    // The 3rd arg is FLAGS_* (FLAG_EMPTY, FLAG_NO_CACHE_LOOKUP, FLAG_NO_CACHE_STORE,
+                    // FLAG_NO_RETRY), not TYPE_HTTPS. HTTPS RR is implied by this overload.
+                    //
+                    // Pre-37 InetAddress overload still uses TYPE_*:
+                    //   query(network, domain, TYPE_A/AAAA/HTTPS, flags, executor, signal, Callback<List<InetAddress>>)
                     resolver.query(
                         /* network = */ null,
                         "cloudflare-ech.com",
-                        DnsResolver.TYPE_HTTPS,
+                        DnsResolver.FLAG_EMPTY,
                         ContextCompat.getMainExecutor(context),
                         DnsResolver.HTTPS_QUERY_WAIT_AUTO,
                         CancellationSignal(),
