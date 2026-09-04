@@ -2,7 +2,6 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.app.Notification
 import android.app.NotificationManager
-import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,10 +11,12 @@ import com.rick.apiupgrade37.R
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
+import com.rick.apiupgrade37.ui.rememberNotificationGate
 
 @Composable
 fun MetricStyleScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val notifications = rememberNotificationGate()
 
     FeatureScaffold("MetricStyle", onBack) { padding ->
         FeatureBody(
@@ -26,7 +27,10 @@ fun MetricStyleScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return@Button
+                    // `enabled` is not a gate lint understands, so the guard is repeated here.
+                    if (!AndroidApis.isAndroid17) return@Button
+                    // API 33+: without a POST_NOTIFICATIONS grant, notify() is a silent no-op.
+                    if (!notifications.ensure()) return@Button
                     val heart = Notification.Metric(
                         Notification.Metric.FixedInt(72, "bpm"),
                         "Heart rate",

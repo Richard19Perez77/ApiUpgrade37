@@ -12,34 +12,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * Advanced Protection Mode is one of the few entries in this lab that is NOT an API 37
+ * feature: AdvancedProtectionManager shipped in Android 16 (API 36, BAKLAVA). Gating it
+ * behind isAndroid17 would report "off" on an Android 16 device where the user has
+ * actually turned it on, which is the wrong way to fail for a security signal.
+ */
 @Composable
 fun AdvancedProtectionScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var enabled by remember { mutableStateOf(readEnabled(context)) }
 
     DisposableEffect(Unit) {
-        if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
-        val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-            context.getSystemService(AdvancedProtectionManager::class.java)
-        } else {
-            // Pre-37: no AdvancedProtectionManager. Infer from DevicePolicyManager / Play Protect.
-            null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            // Pre-36: no platform switch to observe. Apps inferred risk from
+            // DevicePolicyManager or their own settings.
+            return@DisposableEffect onDispose { }
         }
+        val mgr = context.getSystemService(AdvancedProtectionManager::class.java)
+            ?: return@DisposableEffect onDispose { }
         val cb = AdvancedProtectionManager.Callback { value -> enabled = value }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            mgr?.registerAdvancedProtectionCallback(
-                ContextCompat.getMainExecutor(context),
-                cb
-            )
-        }
-        onDispose { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            mgr?.unregisterAdvancedProtectionCallback(cb)
-        }
-        }
+        mgr.registerAdvancedProtectionCallback(ContextCompat.getMainExecutor(context), cb)
+        onDispose { mgr.unregisterAdvancedProtectionCallback(cb) }
     }
 
     FeatureScaffold("Advanced Protection", onBack) { padding ->
@@ -49,8 +46,10 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
                 "block sideloading, restrict USB data, force Play Protect, and more.\n\n" +
                 "Apps should query AdvancedProtectionManager and hide high-risk flows " +
                 "(custom APK installers, USB file transfer, debug overlays) when it is on.\n\n" +
-                "Pre-37: no single platform switch; apps inferred risk from DevicePolicyManager " +
-                "or their own settings."
+                "Available from API 36 (Android 16), not 37 — check for BAKLAVA, not " +
+                "CINNAMON_BUN, or you will report 'off' on a protected Android 16 device.\n\n" +
+                "Reading it needs QUERY_ADVANCED_PROTECTION_MODE, declared in the manifest. " +
+                "Pre-36 there was no single platform switch."
         ) {
             Text("AAPM enabled = $enabled")
         }
@@ -58,11 +57,7 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 }
 
 private fun readEnabled(context: Context): Boolean {
-    if (!AndroidApis.isAndroid17) return false
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-        context.getSystemService(AdvancedProtectionManager::class.java)
-            ?.isAdvancedProtectionEnabled == true
-    } else {
-        false
-    }
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) return false
+    return context.getSystemService(AdvancedProtectionManager::class.java)
+        ?.isAdvancedProtectionEnabled == true
 }

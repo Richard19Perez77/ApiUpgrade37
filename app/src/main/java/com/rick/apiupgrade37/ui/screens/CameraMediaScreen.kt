@@ -2,6 +2,7 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.content.Context
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
@@ -10,16 +11,23 @@ import android.media.MediaRecorder
 import android.os.Build
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalContext
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun CameraMediaScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val report = remember { describeCameras(context) }
+    // Enumerating cameras talks to the camera service over binder and can block for a
+    // noticeable time on first access, so keep it off the composition thread.
+    val report by produceState(initialValue = "Querying cameras…", context) {
+        value = withContext(Dispatchers.IO) { describeCameras(context) }
+    }
 
     FeatureScaffold("Camera & media", onBack) { padding ->
         FeatureBody(
@@ -51,8 +59,21 @@ fun CameraMediaScreen(onBack: () -> Unit) {
     }
 }
 
-private fun describeCameras(context: Context): String {
+// Both cameraIdList and getCameraCharacteristics throw CameraAccessException when the
+// camera service is unavailable, which is routine on emulators without a configured
+// camera and on devices where another app holds the camera. Uncaught, it takes the
+// screen down on open.
+private fun describeCameras(context: Context): String = try {
+    describeCamerasOrThrow(context)
+} catch (e: CameraAccessException) {
+    "Camera service unavailable: ${e.reason}"
+} catch (e: IllegalArgumentException) {
+    "Camera query rejected: ${e.message}"
+}
+
+private fun describeCamerasOrThrow(context: Context): String {
     val cm = context.getSystemService(CameraManager::class.java)
+        ?: return "No CameraManager on this device"
     return cm.cameraIdList.joinToString("\n") { id ->
         val chars = cm.getCameraCharacteristics(id)
         val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {

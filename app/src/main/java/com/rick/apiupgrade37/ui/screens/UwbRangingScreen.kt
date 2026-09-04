@@ -10,10 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
-import java.util.concurrent.Executors
 
 @Composable
 fun UwbRangingScreen(onBack: () -> Unit) {
@@ -23,27 +23,29 @@ fun UwbRangingScreen(onBack: () -> Unit) {
     DisposableEffect(Unit) {
         if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
         val rm = context.getSystemService(RangingManager::class.java)
-        val executor = Executors.newSingleThreadExecutor()
+        // Deliver on the main executor: the callback writes Compose state.
+        val executor = ContextCompat.getMainExecutor(context)
         val cb = RangingManager.RangingCapabilitiesCallback { caps ->
             val uwb = caps.uwbCapabilities
             status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
                 "tech=${caps.technologyAvailability}"
         }
         rm.registerCapabilitiesCallback(executor, cb)
-        onDispose {
-            rm.unregisterCapabilitiesCallback(cb)
-            executor.shutdown()
-        }
+        onDispose { rm.unregisterCapabilitiesCallback(cb) }
     }
 
     FeatureScaffold("UWB DL-TDoA", onBack) { padding ->
         FeatureBody(
             padding,
             "Downlink TDoA lets a device locate itself against multiple UWB anchors by " +
-                "comparing arrival times. Requires FINE location (and BACKGROUND location if " +
-                "you range while not visible) plus the UWB_RANGING permission.\n\n" +
-                "This screen only queries capabilities. Starting a session needs FiRa OOB " +
-                "bytes from your anchors — see the commented builder in source."
+                "comparing arrival times.\n\n" +
+                "This screen only reads capabilities, which needs no permission. Running an " +
+                "actual ranging session needs the UWB_RANGING runtime permission (declared in " +
+                "the manifest but deliberately not requested here), and ACCESS_FINE_LOCATION " +
+                "if you derive position from it — that one is NOT declared in this manifest, " +
+                "since the lab never ranges.\n\n" +
+                "Starting a session also needs FiRa OOB bytes from your anchors — see the " +
+                "commented builder in source."
         ) {
             Text(status)
             Button(

@@ -1,24 +1,25 @@
 # API 37 Lab
 
-Hands-on catalog of **Android 17 (API 37 / `Build.VERSION_CODES.CINNAMON_BUN`)**.
+A runnable catalog of the APIs that are new, or newly enforced, in Android 17 (API level 37, dessert code `CINNAMON_BUN`).
 
-| Gradle | Value |
+Every screen in the app demonstrates one platform area. The live code always takes the API 37 path; the way the same thing was done on API 24–36 is kept beside it as a comment, so you can read both without switching branches.
+
+If you only read one other file, read [OVERVIEW.md](OVERVIEW.md). It is the feature-by-feature tour of what changed in Android 17.
+
+## Toolchain
+
+| Setting | Value |
 | --- | --- |
-| `compileSdk` | 37 |
-| `targetSdk` | 37 |
+| `compileSdk` / `targetSdk` | 37 |
 | `minSdk` | 24 |
+| Android Gradle Plugin | 9.3.2 |
+| Gradle | 9.5.0 |
+| JDK to run the build | 17 |
+| Java language level for app code | 11 |
 
-Live code is the API 37 path. Older 24–36 patterns are **comments** next to it, not `TODO()` stubs.
+AGP 9.3 lists Gradle 9.5.0 as both its minimum and its default, so Studio's offer to upgrade to a newer Gradle is optional. The JDK 17 requirement comes from AGP itself and is separate from the `compileOptions` language level of 11.
 
-## Start here
-
-1. [OVERVIEW.md](OVERVIEW.md) — what changed in 17 and how to migrate.
-2. Run the app → **Catalog**, **Adaptive**, **Behaviors**.
-3. Open the matching file under `app/src/main/java/com/rick/apiupgrade37/ui/screens/`.
-
-## Build
-
-Need the **API 37** platform (`platforms/android-37.0`) and JDK 11+. An Android 17 emulator or Pixel is required for APIs that do not exist on older images.
+You also need the API 37 platform installed (`platforms/android-37.0`). Several demos only produce real output on an Android 17 device or emulator; on older images they show an explanatory message instead.
 
 ```bash
 # Windows
@@ -28,75 +29,100 @@ Need the **API 37** platform (`platforms/android-37.0`) and JDK 11+. An Android 
 ./gradlew :app:assembleDebug
 ```
 
-## How samples are written
+## Finding your way around the app
 
-Use `AndroidApis.isAndroid17` (annotated with `@ChecksSdkIntAtLeast`). Lint then treats the `if` as an API 37 gate.
+The app opens on three tabs:
+
+- **Catalog** lists every demo. Tapping a card opens that screen.
+- **Adaptive** shows how the layout reflows, which is the change most likely to break an existing app once it targets 37.
+- **Behaviors** is a written summary of the target-37 changes that have no UI, such as the lock-free `MessageQueue` and frozen `static final` fields.
+
+## Conventions used in the samples
+
+Version checks go through `AndroidApis.isAndroid17`, which is annotated with `@ChecksSdkIntAtLeast`. That annotation is what tells lint the property is an API 37 gate, so a plain `if` is enough:
 
 ```kotlin
 if (AndroidApis.isAndroid17) {
-    // New API 37 call
+    // API 37 call
 } else {
-    // Pre-37: Intent.ACTION_PICK / READ_CONTACTS / …
+    // Pre-37: Intent.ACTION_PICK, READ_CONTACTS, and so on
 }
 ```
 
-| Do | Don't |
-| --- | --- |
-| `@RequiresApi(CINNAMON_BUN)` on methods the **platform only calls on 37+** (example: `onHandoffActivityDataRequested`) | `@RequiresApi` on `Activity.onCreate` / `Application.onCreate` — those still run on API 24 |
-| Comment the old API in the `else` (or omit the branch) | Accept Studio's `TODO("VERSION.SDK_INT < …")` — that throws at runtime |
-| Comment ignored manifest attrs (`screenOrientation`, `resizeableActivity=false`) | Rely on orientation locks once you target 37 on large screens |
+Two mistakes are easy to make here, and both were made while building this project:
 
-If Studio offers a second `SDK_INT >= CINNAMON_BUN` check **inside** an `isAndroid17` block, decline it.
+**Do not put `@RequiresApi` on `onCreate`.** The annotation only informs lint; it does not stop the platform from calling the method on API 24. Reserve it for methods the system invokes only on 37 and later, such as `onHandoffActivityDataRequested`. Guard everything else with `isAndroid17` inside the method body.
 
-## Layout of this repo
+**Do not accept the `TODO("VERSION.SDK_INT < …")` quick fix.** Studio offers it when it cannot prove a version check is in place, but `TODO()` throws `NotImplementedError` at runtime. Write the old API as a comment instead, or return a sensible fallback value. If Studio suggests a second `SDK_INT` check *inside* a block already guarded by `isAndroid17`, decline it — the `@ChecksSdkIntAtLeast` annotation covers it.
+
+There is one repetition that looks like that mistake but is not. Several screens disable a button on old devices and then check the version again in the click handler:
+
+```kotlin
+Button(
+    enabled = AndroidApis.isAndroid17,
+    onClick = {
+        // `enabled` is not a gate lint understands, so the guard is repeated here.
+        if (!AndroidApis.isAndroid17) return@Button
+        someApi37Call()
+    }
+)
+```
+
+`enabled = false` stops the user reaching the call, but it is a runtime property of a different composable, so neither lint nor the compiler can use it to prove the call is safe. The guard inside `onClick` is what makes the lambda verifiably API 37 only. Keep both, and write both with `isAndroid17` rather than a raw `Build.VERSION.SDK_INT` comparison.
+
+Manifest attributes that stop working on large screens under target 37, such as `screenOrientation` and `resizeableActivity="false"`, appear only as comments in `AndroidManifest.xml`. They are documented, never relied on.
+
+## Repository layout
 
 ```
 ApiUpgrade37/
 ├── OVERVIEW.md
 ├── README.md
 └── app/src/main
-    ├── AndroidManifest.xml              ACCESS_LOCAL_NETWORK, NPU feature, adaptive comments
-    ├── res/xml/network_security_config.xml   ECH + Certificate Transparency
-    ├── res/xml/data_extraction_rules.xml     API 31+ backup
+    ├── AndroidManifest.xml                    ACCESS_LOCAL_NETWORK, NPU feature, adaptive notes
+    ├── res/xml/network_security_config.xml    ECH and Certificate Transparency
+    ├── res/xml/data_extraction_rules.xml      Backup rules for API 31+
     └── java/com/rick/apiupgrade37
-        ├── ApiUpgrade37App.kt           ProfilingManager triggers
-        ├── MainActivity.kt              edge-to-edge + Handoff
-        ├── core/AndroidApis.kt          CINNAMON_BUN + ChecksSdkIntAtLeast
-        ├── jobs/DebugSampleJobService.kt
+        ├── ApiUpgrade37App.kt                 ProfilingManager triggers
+        ├── MainActivity.kt                    Edge-to-edge and Handoff
+        ├── core/AndroidApis.kt                CINNAMON_BUN gate and @ChecksSdkIntAtLeast
+        ├── jobs/DebugSampleJobService.kt      Job used by the JobScheduler demo
         └── ui/
-            ├── Catalog.kt               Catalog rows
-            ├── Api37App.kt              Catalog / Adaptive / Behaviors
-            └── screens/                 One demo per catalog item
+            ├── Api37App.kt                    Tab chrome and routing
+            ├── Catalog.kt                     The catalog rows
+            └── screens/                       One file per demo
 ```
 
-## Catalog → source
+## Catalog entries and their source files
 
-| In-app card | File |
+| Card in the app | Source file |
 | --- | --- |
-| Adaptive layouts | `AdaptiveLayoutsScreen.kt` |
-| Contacts picker | `ContactsPickerScreen.kt` |
-| Eyedropper | `EyeDropperScreen.kt` |
-| Local network | `LocalNetworkScreen.kt` |
-| Photo picker | `PhotoPickerScreen.kt` |
-| Advanced Protection | `AdvancedProtectionScreen.kt` |
-| ECH + CT | `NetworkSecurityScreen.kt` |
-| Profiling triggers | `ProfilingScreen.kt` |
-| JobScheduler stats | `JobSchedulerScreen.kt` |
-| Idle alarm listener | `AlarmListenerScreen.kt` |
-| Memory limiter | `MemoryLimitsScreen.kt` |
-| Live Update colors | `LiveUpdateScreen.kt` |
-| MetricStyle | `MetricStyleScreen.kt` |
-| Camera & media | `CameraMediaScreen.kt` |
-| Hearing aids | `HearingAidScreen.kt` |
-| UWB DL-TDoA | `UwbRangingScreen.kt` |
+| Adaptive layouts and windowing | `AdaptiveLayoutsScreen.kt` |
+| System contacts picker | `ContactsPickerScreen.kt` |
+| System eyedropper | `EyeDropperScreen.kt` |
+| Local network permission | `LocalNetworkScreen.kt` |
+| Photo picker aspect ratio | `PhotoPickerScreen.kt` |
+| Advanced Protection Mode | `AdvancedProtectionScreen.kt` |
+| ECH and Certificate Transparency | `NetworkSecurityScreen.kt` |
+| ProfilingManager triggers | `ProfilingScreen.kt` |
+| JobScheduler debug stats | `JobSchedulerScreen.kt` |
+| Allow-while-idle alarm listener | `AlarmListenerScreen.kt` |
+| Memory limiter and exit info | `MemoryLimitsScreen.kt` |
+| Live Update semantic colors | `LiveUpdateScreen.kt` |
+| MetricStyle notifications | `MetricStyleScreen.kt` |
+| Camera and media | `CameraMediaScreen.kt` |
+| BLE hearing aids | `HearingAidScreen.kt` |
+| UWB downlink TDoA | `UwbRangingScreen.kt` |
 | AppFunctions | `AppFunctionsScreen.kt` |
-| CJKV IME a11y | `AccessibilityImeScreen.kt` |
-| Target-37 behaviors | `BehaviorChangesScreen.kt` |
+| CJKV IME accessibility | `AccessibilityImeScreen.kt` |
+| Target-37 behavior changes | `BehaviorChangesScreen.kt` |
 
-This lab uses `BoxWithConstraints` + wrapping chips so it stays on the default Compose BOM. Production apps should use `NavigationSuiteScaffold` (material3-adaptive-navigation-suite) for bottom bar ↔ rail.
+## A note on the navigation code
 
-## Docs
+The tab bar is built from wrapping `FilterChip`s and the two-pane layout from `BoxWithConstraints`, which keeps the project on the stock Compose BOM with no extra dependencies. A production app should use `NavigationSuiteScaffold` from `material3-adaptive-navigation-suite`, which switches between a bottom bar and a navigation rail on its own. The comments in `Api37App.kt` and `AdaptiveLayoutsScreen.kt` say the same thing where the code lives.
 
-- https://developer.android.com/about/versions/17/features
-- https://developer.android.com/about/versions/17/behavior-changes-17
-- https://developer.android.com/about/versions/17/summary
+## Official documentation
+
+- [Features and APIs](https://developer.android.com/about/versions/17/features)
+- [Behavior changes for apps targeting Android 17](https://developer.android.com/about/versions/17/behavior-changes-17)
+- [Full list of Android 17 changes](https://developer.android.com/about/versions/17/summary)

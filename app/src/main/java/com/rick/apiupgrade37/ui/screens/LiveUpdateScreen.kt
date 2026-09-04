@@ -13,10 +13,12 @@ import com.rick.apiupgrade37.ApiUpgrade37App
 import com.rick.apiupgrade37.R
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
+import com.rick.apiupgrade37.ui.rememberNotificationGate
 
 @Composable
 fun LiveUpdateScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val notifications = rememberNotificationGate()
 
     FeatureScaffold("Live Update colors", onBack) { padding ->
         FeatureBody(
@@ -32,6 +34,8 @@ fun LiveUpdateScreen(onBack: () -> Unit) {
         ) {
             Button(
                 onClick = {
+                    // API 33+: without a POST_NOTIFICATIONS grant, notify() is a silent no-op.
+                    if (!notifications.ensure()) return@Button
                     val nm = context.getSystemService(NotificationManager::class.java)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                         val text = SpannableStringBuilder()

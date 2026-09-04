@@ -2,31 +2,26 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.app.ActivityManager
 import android.app.ApplicationExitInfo
+import android.content.Context
 import android.os.Build
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalContext
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MemoryLimitsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val report = remember {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            "ApplicationExitInfo requires API 30+"
-        } else {
-            val am = context.getSystemService(ActivityManager::class.java)
-            val exits = am.getHistoricalProcessExitReasons(context.packageName, 0, 8)
-            if (exits.isEmpty()) {
-                "No recorded exits yet. After a MemoryLimiter kill, getDescription() may contain MemoryLimiter:AnonSwap."
-            } else {
-                exits.joinToString("\n") { info ->
-                    "reason=${reasonName(info.reason)} desc=${info.description}"
-                }
-            }
-        }
+    // getHistoricalProcessExitReasons is a binder round-trip to ActivityManager. Running it
+    // inside remember {} would block the main thread during composition, which is the kind
+    // of thing that shows up as a dropped frame on entry and an ANR on a slow device.
+    val report by produceState(initialValue = "Reading exit reasons…", context) {
+        value = withContext(Dispatchers.IO) { exitReport(context) }
     }
 
     FeatureScaffold("Memory limits", onBack) { padding ->
@@ -41,6 +36,20 @@ fun MemoryLimitsScreen(onBack: () -> Unit) {
         ) {
             Text(report)
         }
+    }
+}
+
+private fun exitReport(context: Context): String {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return "ApplicationExitInfo requires API 30+"
+    val am = context.getSystemService(ActivityManager::class.java)
+        ?: return "No ActivityManager on this device"
+    val exits = am.getHistoricalProcessExitReasons(context.packageName, 0, 8)
+    if (exits.isEmpty()) {
+        return "No recorded exits yet. After a MemoryLimiter kill, " +
+            "getDescription() may contain MemoryLimiter:AnonSwap."
+    }
+    return exits.joinToString("\n") { info ->
+        "reason=${reasonName(info.reason)} desc=${info.description}"
     }
 }
 

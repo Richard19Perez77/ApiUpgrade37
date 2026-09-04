@@ -52,9 +52,10 @@ fun EyeDropperScreen(onBack: () -> Unit) {
             Text(String.format("#%08X", color))
             Button(
                 enabled = AndroidApis.isAndroid17,
-                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                onClick = {
+                    // `enabled` is not a gate lint understands, so the guard is repeated here.
+                    if (!AndroidApis.isAndroid17) return@Button
                     launcher.launch(Intent(Intent.ACTION_OPEN_EYE_DROPPER))
-                }
                 }
             ) {
                 Text(if (AndroidApis.isAndroid17) "Open system eyedropper" else "Requires API 37 device")

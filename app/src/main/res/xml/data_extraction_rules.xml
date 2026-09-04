@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Cloud backup / device-transfer rules (API 31+).
-  This lab stores no user accounts; back up nothing from cache/code_cache.
+
+  These rules are allow-lists: once a <cloud-backup> or <device-transfer> block contains
+  any <include>, everything not included is already excluded. Adding <exclude> for a
+  domain you never included is a lint error ("... is not in an included path"), and there
+  is no "cache" domain here at all — caches and code_cache are never backed up.
+  Valid domains: file, database, sharedpref, external, root, and the device_* variants.
+
+  This lab stores no user accounts, so only shared preferences are carried over.
   See https://developer.android.com/about/versions/12/backup-restore
 -->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="sharedpref" path="." />
-        <exclude domain="cache" path="." />
-        <exclude domain="external" path="." />
     </cloud-backup>
     <device-transfer>
         <include domain="sharedpref" path="." />
-        <exclude domain="cache" path="." />
     </device-transfer>
 </data-extraction-rules>

@@ -1,126 +1,160 @@
-# Android 17 (API 37) overview
+# What changed in Android 17 (API 37)
 
-Dessert code: **`Build.VERSION_CODES.CINNAMON_BUN`**. This lab **compiles and targets 37**, `minSdk` **24**.
+Android 17 is API level 37, dessert code `CINNAMON_BUN`. This document walks through the changes area by area and points at the file in this project that demonstrates each one.
 
-Platform: [Features](https://developer.android.com/about/versions/17/features) · [Apps targeting 17](https://developer.android.com/about/versions/17/behavior-changes-17) · [Full list](https://developer.android.com/about/versions/17/summary)
+Two kinds of change are mixed together below, and the difference matters:
 
-How to read the samples is in [README.md](README.md) (`AndroidApis.isAndroid17`, `@RequiresApi`, never `TODO()` else-branches).
+- Changes that apply **as soon as the device runs Android 17**, whatever your `targetSdk`.
+- Changes that only apply **once you set `targetSdk = 37`**. These are the ones that break working apps at upgrade time, and they are collected in the Behaviors tab of the app.
+
+The conventions used in the sample code (`AndroidApis.isAndroid17`, where `@RequiresApi` belongs, why there are no `TODO()` stubs) are described in [README.md](README.md).
+
+Official sources: [Features and APIs](https://developer.android.com/about/versions/17/features), [behavior changes for apps targeting 17](https://developer.android.com/about/versions/17/behavior-changes-17), and the [full change list](https://developer.android.com/about/versions/17/summary).
 
 ---
 
-## Adaptive-first (largest product change)
+## Adaptive layouts
 
-Once `targetSdk` is 37, **large screens (`sw > 600dp`)** — including a phone in **desktop / connected-display mode** — **ignore**:
+This is the largest change and the most likely to affect an existing app.
 
-- `android:screenOrientation`
-- `Activity.setRequestedOrientation()`
+Once you target 37, large screens — anything with a smallest width above 600dp, including a phone driving a connected display in desktop mode — ignore the constraints apps have historically used to stay in portrait:
+
+- `android:screenOrientation` in the manifest
+- `Activity.setRequestedOrientation()` at runtime
 - `android:resizeableActivity="false"`
-- `minAspectRatio` / `maxAspectRatio`
+- `minAspectRatio` and `maxAspectRatio`
 
-**Games** (Play app category) stay exempt. Everyone else must reflow.
+Games, identified by their Play app category, remain exempt. Every other app has to reflow to whatever window size it is given.
 
-Android 17 also expands multitasking:
+Android 17 also adds windowing surfaces your layout has to survive:
 
-| Surface | What your UI must survive |
+| Surface | What it means for your UI |
 | --- | --- |
-| App Bubbles | Any app can become a tiny floating window from a long-press on the launcher icon |
-| Bubble Bar | Tablet/foldable taskbar dock for those bubbles |
-| Desktop interactive PiP | Unlike classic PiP, the window stays **interactive** |
+| App Bubbles | The user can turn any app into a small floating window by long-pressing its launcher icon |
+| Bubble Bar | A dock in the tablet and foldable taskbar for organising those bubbles |
+| Desktop interactive Picture-in-Picture | Unlike the classic read-only PiP, the pinned window still accepts input |
 
-**This lab:** `BoxWithConstraints` (600.dp two-pane) in `AdaptiveLayoutsScreen`. **Production:** `WindowSizeClass` + `NavigationSuiteScaffold`. **Don't:** lock portrait or ship a single phone `layout/`.
+Activity recreation changed as well. Configuration changes for keyboard, `keyboardHidden`, navigation, touchscreen, and `colorMode` no longer restart the activity by default; they arrive at `onConfigurationChanged()` instead. If your app genuinely depends on a restart to reload resources, opt back in with the new `android:recreateOnConfigChanges` attribute, and be careful not to also list those flags in `configChanges` — `configChanges` wins.
 
-Activity recreation: keyboard, `keyboardHidden`, navigation, touchscreen, and `colorMode` **no longer restart** the activity by default; you get `onConfigurationChanged()`. Opt back in with `android:recreateOnConfigChanges` (and do **not** also list those flags in `configChanges`).
-
-See `MainActivity`, `AdaptiveLayoutsScreen`, and comments in `AndroidManifest.xml`.
+In this project: `AdaptiveLayoutsScreen.kt`, `MainActivity.onConfigurationChanged`, and the commented attributes in `AndroidManifest.xml`.
 
 ---
 
 ## Privacy
 
-| API 37 | Replaces | Screen |
+The theme is replacing broad, permanent permissions with system-rendered pickers that grant access to exactly what the user chose, for that session only.
+
+| New in API 37 | What it replaces | Demo screen |
 | --- | --- | --- |
-| `ContactsPickerSessionContract.ACTION_PICK_CONTACTS` | Broad `READ_CONTACTS` | Contacts |
-| `Intent.ACTION_OPEN_EYE_DROPPER` + `Intent.EXTRA_COLOR` | Screenshot / MediaProjection to sample a pixel | Eyedropper |
-| `ACCESS_LOCAL_NETWORK` (NEARBY_DEVICES group) | Silent LAN sockets with only `INTERNET` | Local network |
-| `PhotoPickerUiCustomizationParams` (9:16 / 1:1) | App-owned gallery grid | Photo picker |
-| System location button (session-precise) | Permanent fine location for a one-shot | (documented only) |
-| Encrypted Client Hello (`<domainEncryption mode="opportunistic\|enabled\|disabled"/>`) | Clear SNI on TLS ClientHello | ECH + CT |
-| Certificate Transparency **default on** | Opt-in CT on API 36 | `network_security_config.xml` |
-| Hardware-keyboard password fields hide last character | Last-char peek | Behaviors |
+| `ContactsPickerSessionContract.ACTION_PICK_CONTACTS` | Holding `READ_CONTACTS` to read the whole address book | Contacts picker |
+| `Intent.ACTION_OPEN_EYE_DROPPER`, returning `Intent.EXTRA_COLOR` | Screen capture or MediaProjection just to sample one pixel | Eyedropper |
+| `ACCESS_LOCAL_NETWORK`, part of the NEARBY_DEVICES group | Reaching LAN devices with nothing but `INTERNET` | Local network |
+| `PhotoPickerUiCustomizationParams` for 9:16 or 1:1 thumbnails | An app-built gallery grid | Photo picker |
+| Encrypted Client Hello, configured with `<domainEncryption>` | A cleartext SNI in the TLS handshake | ECH and CT |
+| Certificate Transparency on by default | Opting in per-domain, as you had to on API 36 | `network_security_config.xml` |
 
-SMS OTPs are delayed **three hours** for apps targeting 37 that are not default SMS / assistant / companion. Use **SMS Retriever** or **User Consent**.
+Two more privacy changes have no demo screen. A system-rendered location button grants precise location for the current session only, and password fields no longer echo the last typed character when a hardware keyboard is attached.
 
----
-
-## Performance & runtime
-
-- **Lock-free `MessageQueue`** when you target 37. Do not reflect on private queue fields; tests use `TestLooperManager.peekWhen()` / `poll()`.
-- **`static final` is frozen.** Reflection or JNI mutation throws / crashes. Do not patch `SDK_INT` in unit tests.
-- **MemoryLimiter** kills apps over device-RAM-based anon+swap. `ApplicationExitInfo.getDescription()` can contain `MemoryLimiter:AnonSwap`. Register `ProfilingTrigger.TRIGGER_TYPE_ANOMALY` for a heap dump *before* death (`ApiUpgrade37App`).
-- New triggers: `TRIGGER_TYPE_COLD_START`, `TRIGGER_TYPE_OOM`, `TRIGGER_TYPE_KILL_EXCESSIVE_CPU_USAGE`.
-- **`JobScheduler.getPendingJobReasonStats(jobId)`** → `Map<reason, Duration>` (API 34 had `getPendingJobReason`; API 36 added history).
-- **`AlarmManager.setExactAndAllowWhileIdle(..., Executor, OnAlarmListener)`** — drop sticky wakelocks for short idle work. Pre-37 used a `PendingIntent`.
-- ART **young-gen GC** (also via Play system updates back to API 31).
-- Custom notification **RemoteViews** memory limits close the URI bypass when targeting 37.
-- Native **dynamic code loading**: `System.load` requires a **read-only** `.so` (DEX/JAR already had this from API 34).
+SMS one-time passwords are now delayed by three hours for apps targeting 37 that are not the default SMS app, the assistant, or a connected companion app. If you read OTPs, move to the SMS Retriever or SMS User Consent APIs.
 
 ---
 
-## UX / notifications / continuity
+## Performance and runtime
 
-- **Handoff / Continue On:** `setHandoffEnabled(true, params)` in `onCreate` (gated), then `@RequiresApi(CINNAMON_BUN) onHandoffActivityDataRequested()` returning `HandoffActivityData` (extras ≤ ~50KB, optional `fallbackUri` or `createWebHandoff`). Do **not** annotate `onCreate` with `@RequiresApi`.
-- **Live Update semantic colors:** `SEMANTIC_STYLE_SAFE | CAUTION | DANGER | INFO` via `Notification.createSemanticStyleAnnotation`, plus `setRequestPromotedOngoing(true)`.
-- **`Notification.MetricStyle`** for heart-rate / timer / travel tiles.
-- **`STREAM_ASSISTANT` / `MODE_ASSISTANT_CONVERSATION`** so assistant volume is not media volume (`USAGE_ASSISTANT` exists from API 26).
-- **CJKV IME a11y:** `AccessibilityEvent.setTextChangeTypes(...)`.
+Several of these are silent: nothing warns you at build time, and the failure only appears at runtime after you bump `targetSdk`.
 
----
+- `android.os.MessageQueue` becomes lock-free. It is faster, but any code that reflects on the queue's private fields breaks. Instrumentation tests should use `TestLooperManager.peekWhen()` and `poll()` instead.
+- `static final` fields can no longer be modified. Reflection now throws `IllegalAccessException`, and the JNI `SetStatic*Field` family crashes the process. This rules out the common trick of patching `Build.VERSION.SDK_INT` in unit tests; use Robolectric shadows or your own wrapper.
+- The system enforces per-app memory limits based on total device RAM and terminates processes that exceed them. When that happens, `ApplicationExitInfo.getDescription()` contains `MemoryLimiter:AnonSwap`.
+- `ProfilingManager`, which arrived in API 35, gains four triggers: `TRIGGER_TYPE_COLD_START`, `TRIGGER_TYPE_OOM`, `TRIGGER_TYPE_KILL_EXCESSIVE_CPU_USAGE`, and `TRIGGER_TYPE_ANOMALY`. The anomaly trigger is the useful one for memory limits, because it can hand you a heap dump before the system kills the process. Note that `TRIGGER_TYPE_OOM` only works if your uncaught exception handler calls through to the default one.
+- `JobScheduler.getPendingJobReasonStats(jobId)` returns a map of pending reason to cumulative `Duration`, folding together `getPendingJobReason` from API 34 and the reason history added in API 36.
+- `AlarmManager.setExactAndAllowWhileIdle` gains an overload taking an `Executor` and an `OnAlarmListener` instead of a `PendingIntent`. It suits apps that were holding a wake lock to run a short periodic task, such as a socket keepalive.
+- ART adds generational garbage collection, with frequent young-generation sweeps in place of full-heap scans. This also reaches API 31 and above through Play system updates.
+- Custom notification views are held to stricter memory limits under target 37, closing a bypass that used URIs.
+- Safer dynamic code loading extends to native libraries. A `.so` passed to `System.load` must be marked read-only or the call throws `UnsatisfiedLinkError`. DEX and JAR files have had this requirement since API 34.
 
-## Media, camera, ranging
-
-- `CameraCharacteristics.INFO_DEVICE_TYPE` → built-in / USB / virtual (pre-37: `INFO_SUPPORTED_HARDWARE_LEVEL`)
-- `ImageFormat.RAW14`
-- `MediaFormat.MIMETYPE_VIDEO_VVC` (H.266)
-- `MediaRecorder.setVideoEncodingQuality` (constant quality; pre-37: bitrate only)
-- `AudioDeviceInfo.TYPE_BLE_HEARING_AID`
-- UWB **DL-TDoA** on `RangingManager` (this lab queries capabilities only)
-- CameraX **1.5.2 or 1.6.0+** on Android 17 (dynamic-range crash otherwise)
-- Constrained **satellite** networks (also in 16 QPR2)
+In this project: `ApiUpgrade37App.kt`, `ProfilingScreen.kt`, `JobSchedulerScreen.kt`, `AlarmListenerScreen.kt`, `MemoryLimitsScreen.kt`, and `BehaviorChangesScreen.kt`.
 
 ---
 
-## Security & intelligence
+## Notifications, audio, and continuity
 
-- **AdvancedProtectionManager** — user opt-in: no sideload, USB data off, Play Protect required. Hide high-risk features when enabled.
-- **ML-DSA** in Keystore; **APK Signature Scheme v3.2** hybrid (new classical key + PQC; cannot reuse the old signing key).
-- **AppFunctions / Android MCP** — `AppFunctionManager.registerAppFunction` in this lab; production often uses Jetpack `@AppFunction` + KDoc.
-- Declare **`FEATURE_NEURAL_PROCESSING_UNIT`** (`required="false"`) if you use LiteRT NPU / vendor NPU / NNAPI while targeting 37.
+Handoff, branded Continue On, lets a user start a task on one device and pick it up on another. Enable it per activity by calling `setHandoffEnabled(true, params)` when the screen is ready to be handed off, then override `onHandoffActivityDataRequested()` to return a `HandoffActivityData`. Extras travel in a `PersistableBundle` and must stay under roughly 50KB. You can set a `fallbackUri` for devices without your app installed, or use `HandoffActivityData.createWebHandoff()` for a web-only handoff.
+
+Live Updates gain semantic colours with fixed meanings — `SEMANTIC_STYLE_SAFE`, `CAUTION`, `DANGER`, and `INFO` — applied to spans through `Notification.createSemanticStyleAnnotation()`, or to progress points and segments through `setSemanticStyle()`. Pair them with `setRequestPromotedOngoing(true)` to ask the system to promote the notification.
+
+`Notification.MetricStyle` is a new template for health, fitness, timer, and travel readouts, where each metric carries a value, a label, and an optional semantic style.
+
+On the audio side, the assistant now has its own volume stream, `STREAM_ASSISTANT`, so assistant playback is no longer tied to media volume, and assistant-role apps can enter `MODE_ASSISTANT_CONVERSATION`. `AudioDeviceInfo.TYPE_BLE_HEARING_AID` finally distinguishes Bluetooth LE hearing aids from ordinary LE headsets. Note that `USAGE_ASSISTANT` itself is old, dating to API 26.
+
+For accessibility, `AccessibilityEvent.setTextChangeTypes()` lets an IME tell a screen reader whether CJKV text is still being composed, has had a conversion candidate selected, or has been committed.
+
+In this project: `MainActivity.kt`, `LiveUpdateScreen.kt`, `MetricStyleScreen.kt`, `HearingAidScreen.kt`, and `AccessibilityImeScreen.kt`.
 
 ---
 
-## Version cheat sheet
+## Camera and media
 
-| API | Dessert | In this lab |
+- `CameraCharacteristics.INFO_DEVICE_TYPE` reports whether a camera is built in, an external USB webcam, or virtual. Before 37 the closest signal was `INFO_SUPPORTED_HARDWARE_LEVEL`.
+- `ImageFormat.RAW14` adds a 14-bit Bayer format for professional capture.
+- `MediaFormat.MIMETYPE_VIDEO_VVC` lets device makers expose H.266 codecs.
+- `MediaRecorder.setVideoEncodingQuality()` configures constant-quality encoding; previously you could only set a bitrate.
+- Ultra-wideband gains downlink TDoA ranging through `RangingManager`, which locates a device against several anchors by comparing signal arrival times.
+- If you use CameraX on Android 17, move to 1.5.2 or 1.6.0 and later to avoid a crash related to an added dynamic range mode.
+
+In this project: `CameraMediaScreen.kt` and `UwbRangingScreen.kt`. The UWB screen only queries capabilities, since starting a session needs FiRa configuration bytes from real anchors.
+
+---
+
+## Security and on-device intelligence
+
+Advanced Protection Mode is a single switch the user turns on to harden the device: no sideloading, restricted USB data, mandatory Play Protect scanning. Apps query it through `AdvancedProtectionManager` and should hide risky features — custom installers, USB file transfer, debug overlays — while it is enabled. Note that this one is an Android 16 API, not an Android 17 one; gate it on `BAKLAVA`, because checking for `CINNAMON_BUN` would report "off" on a protected Android 16 device. Reading it requires `QUERY_ADVANCED_PROTECTION_MODE`.
+
+For post-quantum readiness, Keystore can generate ML-DSA keys through the standard JCA APIs, and APK Signature Scheme v3.2 pairs a classical signature with an ML-DSA one. If you manage your own signing keys, note that you must generate a new classical key to pair with the PQC key; the existing one cannot be reused.
+
+AppFunctions is the platform side of Android MCP: apps register capabilities that on-device agents can discover and call. This project uses the platform `AppFunctionManager.registerAppFunction`, while most production apps will use the Jetpack library, where an `@AppFunction` annotation and KDoc generate the equivalent plumbing.
+
+Finally, apps targeting 37 that talk to the NPU — through the LiteRT NPU delegate, a vendor SDK, or the deprecated NNAPI — must declare `FEATURE_NEURAL_PROCESSING_UNIT` in the manifest or risk being blocked.
+
+In this project: `AdvancedProtectionScreen.kt`, `AppFunctionsScreen.kt`, and the `uses-feature` entry in `AndroidManifest.xml`.
+
+---
+
+## API levels referenced in this project
+
+| API | Dessert | Why it appears here |
 | --- | --- | --- |
-| 24 | N | `minSdk` |
-| 26 | O | Notification channels, `USAGE_ASSISTANT` |
-| 31 | S | Exact-alarm policy, `GenericDocument` |
+| 24 | Nougat | The project's `minSdk` |
+| 26 | Oreo | Notification channels, `USAGE_ASSISTANT` |
+| 31 | S | Exact alarm policy, `GenericDocument` |
 | 33 | Tiramisu | Photo Picker, `POST_NOTIFICATIONS` |
-| 34 | UpsideDownCake | Safer DEX DCL, `getPendingJobReason` |
-| 35 | VanillaIceCream | `ProfilingManager` |
-| 36 | Baklava | CT opt-in, `getPendingJobReasonsHistory`, `RangingManager` |
-| **37** | **Cinnamon Bun** | Everything else in this document |
+| 34 | Upside Down Cake | Safer DEX loading, `getPendingJobReason` |
+| 35 | Vanilla Ice Cream | `ProfilingManager` |
+| 36 | Baklava | Opt-in Certificate Transparency, pending job history, `RangingManager`, `AdvancedProtectionManager` |
+| 37 | Cinnamon Bun | Everything else in this document |
 
 ---
 
-## File → topic
+## Traps worth remembering
+
+These all cost time while building this project.
+
+**A manifest permission is not a granted permission.** Two of them bite on any Android 17 device, because both predate 17 and are easy to assume are handled. `POST_NOTIFICATIONS` has been a runtime permission since API 33, so `NotificationManager.notify()` silently does nothing until the user grants it — the notification demos look broken when the notification code is fine. `SCHEDULE_EXACT_ALARM` has been a special app access since API 31 and is denied by default since API 34 for apps that are not clocks or calendars, so every exact-alarm call throws `SecurityException`. Check `AlarmManager.canScheduleExactAlarms()` and route the user through `Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM` first.
+
+**`@RequiresApi` does not gate anything at runtime.** Putting it on `Activity.onCreate` does not stop the method being called on API 24; it only silences lint and hides the real problem. Use a runtime check, and save the annotation for callbacks the platform genuinely invokes only on 37 and later.
+
+**The `DnsResolver.query` overload** that returns an `HttpsEndpoint` takes query *flags* in its third parameter, not a record type. Pass `FLAG_EMPTY` there, or one of `FLAG_NO_CACHE_LOOKUP`, `FLAG_NO_CACHE_STORE`, and `FLAG_NO_RETRY`. The HTTPS record type is implied by the callback type. `TYPE_HTTPS` belongs to the older overload that returns a list of `InetAddress`, and passing it as a flag compiles but asks for something quite different.
+
+---
+
+## Where each topic lives
 
 | File | Topic |
 | --- | --- |
-| `core/AndroidApis.kt` | `CINNAMON_BUN` + `@ChecksSdkIntAtLeast` |
-| `AndroidManifest.xml` | Local network, NPU, ignored orientation attrs, `recreateOnConfigChanges` |
-| `network_security_config.xml` | `<domainEncryption>` + `<certificateTransparency>` |
-| `data_extraction_rules.xml` / `backup_rules.xml` | Backup includes/excludes |
-| `ApiUpgrade37App.kt` | Profiling triggers (`@RequiresApi` on the **private** helper, not `onCreate`) |
-| `MainActivity.kt` | Handoff override + ungated `onCreate` |
-| `ui/screens/*.kt` | One demo per catalog row (see README) |
+| `core/AndroidApis.kt` | The `CINNAMON_BUN` gate and `@ChecksSdkIntAtLeast` |
+| `AndroidManifest.xml` | Local network permission, NPU feature, ignored orientation attributes, `recreateOnConfigChanges` |
+| `res/xml/network_security_config.xml` | `<domainEncryption>` and `<certificateTransparency>` |
+| `res/xml/data_extraction_rules.xml`, `backup_rules.xml` | Backup includes and excludes |
+| `ApiUpgrade37App.kt` | Profiling triggers, with `@RequiresApi` on the private helper rather than `onCreate` |
+| `MainActivity.kt` | Handoff override alongside an ungated `onCreate` |
+| `ui/screens/*.kt` | One file per catalog entry; the mapping is in the README |

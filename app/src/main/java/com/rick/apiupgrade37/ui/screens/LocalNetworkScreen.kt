@@ -3,7 +3,6 @@ package com.rick.apiupgrade37.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
@@ -44,9 +43,10 @@ fun LocalNetworkScreen(onBack: () -> Unit) {
             Text(status)
             Button(
                 enabled = AndroidApis.isAndroid17,
-                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                onClick = {
+                    // `enabled` is not a gate lint understands, so the guard is repeated here.
+                    if (!AndroidApis.isAndroid17) return@Button
                     launcher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
-                }
                 }
             ) { Text("Request ACCESS_LOCAL_NETWORK") }
             val wifi = context.applicationContext.getSystemService(WifiManager::class.java)
@@ -57,7 +57,7 @@ fun LocalNetworkScreen(onBack: () -> Unit) {
 
 private fun grantLabel(context: android.content.Context): String {
     if (!AndroidApis.isAndroid17) return "Device < 37: local-network block is not targetSdk-gated here"
-    val granted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+    val granted = if (AndroidApis.isAndroid17) {
         ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_LOCAL_NETWORK

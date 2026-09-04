@@ -72,11 +72,22 @@ fun PhotoPickerScreen(onBack: () -> Unit) {
                 "a standalone picker. The new params attach to the embedded picker via " +
                 "EmbeddedPhotoPickerFeatureInfo (SurfaceControlViewHost)."
         ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
-                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22) {
+            // These values come from API 37 classes, so the gate is SDK_INT, not an SDK
+            // extension version. Checking an extension here was backwards: it could show
+            // the readout on an API 30 device and hide it on a real Android 17 one.
+            if (AndroidApis.isAndroid17) {
                 Text(
                     "uiParams.aspectRatio=${uiParams?.aspectRatio ?: "n/a"} " +
                         "embedded.max=${embeddedInfo?.maxSelectionLimit ?: "n/a"}"
+                )
+            }
+            // SDK extensions are the right tool for a different question: whether the
+            // *photo picker itself* is present, since it also ships to older releases
+            // through an extension rather than a platform version bump.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Text(
+                    "Photo Picker extension version = " +
+                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
                 )
             }
             Button(
