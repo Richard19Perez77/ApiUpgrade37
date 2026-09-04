@@ -68,7 +68,7 @@ Several of these are silent: nothing warns you at build time, and the failure on
 - The system enforces per-app memory limits based on total device RAM and terminates processes that exceed them. When that happens, `ApplicationExitInfo.getDescription()` contains `MemoryLimiter:AnonSwap`.
 - `ProfilingManager`, which arrived in API 35, gains four triggers: `TRIGGER_TYPE_COLD_START`, `TRIGGER_TYPE_OOM`, `TRIGGER_TYPE_KILL_EXCESSIVE_CPU_USAGE`, and `TRIGGER_TYPE_ANOMALY`. The anomaly trigger is the useful one for memory limits, because it can hand you a heap dump before the system kills the process. Note that `TRIGGER_TYPE_OOM` only works if your uncaught exception handler calls through to the default one.
 - `JobScheduler.getPendingJobReasonStats(jobId)` returns a map of pending reason to cumulative `Duration`, folding together `getPendingJobReason` from API 34 and the reason history added in API 36.
-- `AlarmManager.setExactAndAllowWhileIdle` gains an overload taking an `Executor` and an `OnAlarmListener` instead of a `PendingIntent`. It suits apps that were holding a wake lock to run a short periodic task, such as a socket keepalive.
+- `AlarmManager.setExactAndAllowWhileIdle` gains an overload taking an `Executor` and an `OnAlarmListener` instead of a `PendingIntent`. It suits apps that were holding a wake lock to run a short periodic task, such as a socket keepalive. The exact-alarm permission rules are unchanged, so check `canScheduleExactAlarms()` before calling either form; see the traps section.
 - ART adds generational garbage collection, with frequent young-generation sweeps in place of full-heap scans. This also reaches API 31 and above through Play system updates.
 - Custom notification views are held to stricter memory limits under target 37, closing a bypass that used URIs.
 - Safer dynamic code loading extends to native libraries. A `.so` passed to `System.load` must be marked read-only or the call throws `UnsatisfiedLinkError`. DEX and JAR files have had this requirement since API 34.
@@ -88,6 +88,8 @@ Live Updates gain semantic colours with fixed meanings — `SEMANTIC_STYLE_SAFE`
 On the audio side, the assistant now has its own volume stream, `STREAM_ASSISTANT`, so assistant playback is no longer tied to media volume, and assistant-role apps can enter `MODE_ASSISTANT_CONVERSATION`. `AudioDeviceInfo.TYPE_BLE_HEARING_AID` finally distinguishes Bluetooth LE hearing aids from ordinary LE headsets. Note that `USAGE_ASSISTANT` itself is old, dating to API 26.
 
 For accessibility, `AccessibilityEvent.setTextChangeTypes()` lets an IME tell a screen reader whether CJKV text is still being composed, has had a conversion candidate selected, or has been committed.
+
+None of the notification work above reaches the screen without a `POST_NOTIFICATIONS` grant, which has been a runtime permission since API 33 and is therefore required on every Android 17 device. Both notification samples call `rememberNotificationGate()` first; see the traps section below.
 
 In this project: `MainActivity.kt`, `LiveUpdateScreen.kt`, `MetricStyleScreen.kt`, `HearingAidScreen.kt`, and `AccessibilityImeScreen.kt`.
 
@@ -157,4 +159,5 @@ These all cost time while building this project.
 | `res/xml/data_extraction_rules.xml`, `backup_rules.xml` | Backup includes and excludes |
 | `ApiUpgrade37App.kt` | Profiling triggers, with `@RequiresApi` on the private helper rather than `onCreate` |
 | `MainActivity.kt` | Handoff override alongside an ungated `onCreate` |
+| `ui/NotificationGate.kt` | The `POST_NOTIFICATIONS` runtime grant both notification samples need |
 | `ui/screens/*.kt` | One file per catalog entry; the mapping is in the README |

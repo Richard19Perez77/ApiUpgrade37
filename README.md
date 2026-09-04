@@ -49,7 +49,7 @@ if (AndroidApis.isAndroid17) {
 }
 ```
 
-Two mistakes are easy to make here, and both were made while building this project:
+Two mistakes are easy to make here, and both were made while building this project.
 
 **Do not put `@RequiresApi` on `onCreate`.** The annotation only informs lint; it does not stop the platform from calling the method on API 24. Reserve it for methods the system invokes only on 37 and later, such as `onHandoffActivityDataRequested`. Guard everything else with `isAndroid17` inside the method body.
 
@@ -72,6 +72,12 @@ Button(
 
 Manifest attributes that stop working on large screens under target 37, such as `screenOrientation` and `resizeableActivity="false"`, appear only as comments in `AndroidManifest.xml`. They are documented, never relied on.
 
+Two more rules apply across the screens:
+
+**Declaring a permission is not holding it.** Anything that posts a notification goes through `rememberNotificationGate()` in `ui/NotificationGate.kt`, which checks `POST_NOTIFICATIONS` and prompts when it is missing. Skipping it does not throw — `notify()` just does nothing on API 33 and later, which reads as broken API 37 notification code. The exact-alarm demo does the equivalent with `canScheduleExactAlarms()`.
+
+**Keep platform IPC off the composition thread.** Calls like `getHistoricalProcessExitReasons` and `CameraManager.cameraIdList` are binder round-trips. `MemoryLimitsScreen` and `CameraMediaScreen` run them with `produceState` and `Dispatchers.IO` and show a placeholder while they load, rather than blocking inside `remember { }`.
+
 ## Repository layout
 
 ```
@@ -90,6 +96,8 @@ ApiUpgrade37/
         └── ui/
             ├── Api37App.kt                    Tab chrome and routing
             ├── Catalog.kt                     The catalog rows
+            ├── FeatureScaffold.kt             Shared top bar and body for every demo
+            ├── NotificationGate.kt            POST_NOTIFICATIONS runtime grant
             └── screens/                       One file per demo
 ```
 
@@ -102,7 +110,7 @@ ApiUpgrade37/
 | System eyedropper | `EyeDropperScreen.kt` |
 | Local network permission | `LocalNetworkScreen.kt` |
 | Photo picker aspect ratio | `PhotoPickerScreen.kt` |
-| Advanced Protection Mode | `AdvancedProtectionScreen.kt` |
+| Advanced Protection Mode | `AdvancedProtectionScreen.kt` (an API 36 feature, kept for context) |
 | ECH and Certificate Transparency | `NetworkSecurityScreen.kt` |
 | ProfilingManager triggers | `ProfilingScreen.kt` |
 | JobScheduler debug stats | `JobSchedulerScreen.kt` |
