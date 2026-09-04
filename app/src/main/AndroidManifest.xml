@@ -88,7 +88,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:resizeableActivity="true"
             android:theme="@style/Theme.ApiUpgrade37"
             android:windowSoftInputMode="adjustResize">
