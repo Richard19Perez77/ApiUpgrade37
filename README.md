@@ -14,10 +14,12 @@ If you only read one other file, read [OVERVIEW.md](OVERVIEW.md). It is the feat
 | `minSdk` | 24 |
 | Android Gradle Plugin | 9.3.2 |
 | Gradle | 9.5.0 |
-| JDK to run the build | 17 |
+| JDK that runs the build | 25 |
 | Java language level for app code | 11 |
 
-AGP 9.3 lists Gradle 9.5.0 as both its minimum and its default, so Studio's offer to upgrade to a newer Gradle is optional. The JDK 17 requirement comes from AGP itself and is separate from the `compileOptions` language level of 11.
+Studio's offer to move Gradle past 9.5.0 is optional; AGP 9.3 works with it as shipped.
+
+The two Java numbers are unrelated and often confused. The JDK that *runs* Gradle is pinned to 25 by `gradle/gradle-daemon-jvm.properties` (`toolchainVersion=25`), which also carries download URLs so Gradle can fetch that JDK itself if the machine lacks it — you do not need to install one to build. The `11` is the `compileOptions` language level the *app's own* bytecode targets, set in `app/build.gradle.kts`. Changing one does not change the other. Run `gradlew --version` to see which JDK the daemon actually picked.
 
 You also need the API 37 platform installed (`platforms/android-37.0`). Several demos only produce real output on an Android 17 device or emulator; on older images they show an explanatory message instead.
 
