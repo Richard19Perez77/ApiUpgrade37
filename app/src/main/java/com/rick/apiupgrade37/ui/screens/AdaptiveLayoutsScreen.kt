@@ -20,6 +20,31 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
+ *
+ *  Adaptive Layout Requirements Demo
+ *      dynamic window sizes
+ *      orientation / resizability locks on large screens (sw > 600dp)
+ *
+ *  Fixes:
+ *      On large screens (sw > 600dp), all these locks are IGNORED
+ *      Windows can be resized freely
+ *      Orientation can change dynamically
+ *      Apps must adapt to any window size
+ *
+ *  Improvements:
+ *      orientation lock ignored offers flexibility
+ *      resizability forced on larger screens gives freedom
+ *      aspect ratio ignored means adaptability
+ *      configuration changes onConfigurationChanged() gives performance
+ *      window modes with app bubbles, desktop PiP allows multitasking
+ *
+ *  Strategy:
+ *      1. BoxWithConstraints
+ *      2. NavigationSuiteScaffold
+ *      3. WindowSizeClass
+ *
+ *  More of a desktop like experience in any size, shape or window mode
+ *
  * - API 37: On sw > 600dp (and phones in desktop mode) the system ignores screenOrientation, setRequestedOrientation, resizeableActivity=false, and min/maxAspectRatio. Keyboard/touch/colorMode config changes go to onConfigurationChanged instead of recreating the Activity.
  *
  * - Pre-37: Portrait locks and fixed aspect ratios still constrained the window. Those config changes destroyed and recreated the Activity by default.

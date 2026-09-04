@@ -15,6 +15,34 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
+ *
+ *  Input Method Editors (IMEs)
+ *      screen readers can tell between composing and committed text
+ *          when CJKV (Chinese, Japanese, Korean, Vietnamese) keyboards
+ *
+ *  Improves clarity, context, feedback, finality, and accessibility.
+ *
+ *  TEXT_CHANGE_TYPE_IN_COMPOSITION
+ *  TEXT_CHANGE_TYPE_CONVERSION_SUGGESTION_SELECTED_BY_IME
+ *  TEXT_CHANGE_TYPE_COMMITTED_BY_IME
+ *
+ *  Impact
+ *      Chinese Pinyin Input
+ *      Korean Hangul Input
+ *      Japanese Input
+ *
+ *  IME developer benefits
+ *      Standard API
+ *
+ *  CJKV users benefits
+ *      Screen readers know when text is composed
+ *      Screen readers knoow when text is final
+ *      Screen readers announce conversion choices
+ *      (all users) no more choppy, confusing announcements
+ *
+ *  Accessiblity is then truly global
+ *      platform level accessiblilty improvements
+ *
  * - API 37: AccessibilityEvent.setTextChangeTypes() (IN_COMPOSITION, conversion
  suggestion, COMMITTED_BY_IME) so screen readers can tell composing CJKV from a commit. Hardware-keyboard password fields no longer flash the last char.
  *S
