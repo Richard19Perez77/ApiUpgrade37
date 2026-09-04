@@ -33,15 +33,13 @@ fun AlarmListenerScreen(onBack: () -> Unit) {
                     val am = context.getSystemService(AlarmManager::class.java)
                     val trigger = SystemClock.elapsedRealtime() + 8_000
                     if (AndroidApis.isAndroid17) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                            am.setExactAndAllowWhileIdle(
-                                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                                trigger,
-                                "api37-demo",
-                                ContextCompat.getMainExecutor(context)
-                            ) {
-                                Toast.makeText(context, "OnAlarmListener fired", Toast.LENGTH_SHORT).show()
-                            }
+                        am.setExactAndAllowWhileIdle(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            trigger,
+                            "api37-demo",
+                            ContextCompat.getMainExecutor(context)
+                        ) {
+                            Toast.makeText(context, "OnAlarmListener fired", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         val pi = PendingIntent.getBroadcast(

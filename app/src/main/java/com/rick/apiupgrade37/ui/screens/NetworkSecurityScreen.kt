@@ -38,13 +38,6 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
                 onClick = {
                     if (!AndroidApis.isAndroid17) return@Button
                     val resolver = DnsResolver(context, Looper.getMainLooper())
-                    // HttpsEndpoint overload:
-                    //   query(network, domain, flags, executor, httpsWait, signal, Callback<HttpsEndpoint>)
-                    // The 3rd arg is FLAGS_* (FLAG_EMPTY, FLAG_NO_CACHE_LOOKUP, FLAG_NO_CACHE_STORE,
-                    // FLAG_NO_RETRY), not TYPE_HTTPS. HTTPS RR is implied by this overload.
-                    //
-                    // Pre-37 InetAddress overload still uses TYPE_*:
-                    //   query(network, domain, TYPE_A/AAAA/HTTPS, flags, executor, signal, Callback<List<InetAddress>>)
                     resolver.query(
                         /* network = */ null,
                         "cloudflare-ech.com",
