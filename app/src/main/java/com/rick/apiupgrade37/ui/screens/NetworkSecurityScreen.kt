@@ -38,6 +38,7 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
                     val resolver = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        // todo what to use here instead
                         DnsResolver.getInstance()
                     } else {
                         TODO("VERSION.SDK_INT < Q")
