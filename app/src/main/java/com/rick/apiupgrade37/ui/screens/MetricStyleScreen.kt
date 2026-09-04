@@ -14,6 +14,47 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import com.rick.apiupgrade37.ui.rememberNotificationGate
 
 /**
+ *  Displaying Metrics in Notifications
+ *      display metrics in notifications
+ *      designed for health apps, timers, travel
+ *      data driven notifications
+ *
+ *  MetricStyle
+ *      Notification template
+ *      K:V structure
+ *
+ *  Metric Display
+ *      platform template for consistency
+ *  Metrics Support
+ *      structured Metric objects for simplicity
+ *  Semantic Styling
+ *      INFO, SAFE, WARNING for clarity
+ *  Critical Metrics
+ *      setCriticalMetric() for focus
+ *  Accessibility
+ *      built-in accessibility is inclusive
+ *
+ *  Platform-provided Template
+ *      consistent across apps
+ *      easy to use
+ *      built in accessibility
+ *      semantic meaning
+ *      platform handles styling
+ *
+ *  Semantic Styles
+ *      SEMANTIC_STYLE_INFO
+ *      SEMANTIC_STYLE_SAFE
+ *      SEMANTIC_STYLE_WARNING
+ *      SEMANTIC_STYLE_DANGER
+ *
+ *  Metric Style
+ *      read notifications faster
+ *      no need for custom layouts
+ *      built-in talk back support
+ *      users can quickly assess status
+ *      simple API, less code
+ *      works on all screen sizes
+ *
  * - API 37: Notification.MetricStyle + Notification.Metric (value, label, optional SEMANTIC_STYLE_*) as a platform template.
  *
  * - Pre-37: BigText / Inbox / custom RemoteViews for health, timer, or travel readouts.
