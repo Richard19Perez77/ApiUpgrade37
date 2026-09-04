@@ -28,8 +28,7 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
-            // Pre-36: no platform switch to observe. Apps inferred risk from
-            // DevicePolicyManager or their own settings.
+            // Pre-36: no platform switch to observe. Apps inferred risk from DevicePolicyManager or their own settings.
             return@DisposableEffect onDispose { }
         }
         val mgr = context.getSystemService(AdvancedProtectionManager::class.java)

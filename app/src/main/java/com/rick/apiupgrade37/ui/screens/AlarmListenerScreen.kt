@@ -40,9 +40,7 @@ fun AlarmListenerScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var status by remember { mutableStateOf("Nothing scheduled yet") }
 
-    // ACTION_REQUEST_SCHEDULE_EXACT_ALARM hands the user to a settings page, so the grant
-    // lands while this screen is stopped. The platform guidance is to re-check on resume;
-    // otherwise the UI keeps claiming the permission is missing after the user granted it.
+    // ACTION_REQUEST_SCHEDULE_EXACT_ALARM hands the user to a settings page, so the grant lands while this screen is stopped. The platform guidance is to re-check on resume; otherwise the UI keeps claiming the permission is missing after the user granted it.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -106,10 +104,7 @@ fun AlarmListenerScreen(onBack: () -> Unit) {
                             }
                             status = "Scheduled via OnAlarmListener — no receiver needed"
                         } else {
-                            // Pre-37 the only allow-while-idle form took a PendingIntent, which
-                            // means a real BroadcastReceiver. This demo has none registered, so
-                            // nothing observable happens on older devices; it is here to show
-                            // the shape of the call you are replacing.
+                            // Pre-37 the only allow-while-idle form took a PendingIntent, which means a real BroadcastReceiver. This demo has none registered, so nothing observable happens on older devices; it is here to show the shape of the call you are replacing.
                             val pi = PendingIntent.getBroadcast(
                                 context,
                                 0,

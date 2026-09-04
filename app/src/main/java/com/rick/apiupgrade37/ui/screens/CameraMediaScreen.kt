@@ -24,16 +24,17 @@ import kotlinx.coroutines.withContext
  * - API 37: CameraCharacteristics.INFO_DEVICE_TYPE (built-in / USB / virtual),
  *   ImageFormat.RAW14, MediaFormat.MIMETYPE_VIDEO_VVC, and
  *   MediaRecorder.setVideoEncodingQuality() for constant-quality encode.
+ *
  * - Pre-37: INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1; bitrate via
  *   setVideoEncodingBitRate().
+ *
  * - Nicety — new capture/codec knobs. Need if you use CameraX on Android 17:
  *   upgrade to 1.5.2 / 1.6.0+ or a dynamic-range mode can crash.
  */
 @Composable
 fun CameraMediaScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    // Enumerating cameras talks to the camera service over binder and can block for a
-    // noticeable time on first access, so keep it off the composition thread.
+    // Enumerating cameras talks to the camera service over binder and can block for a noticeable time on first access, so keep it off the composition thread.
     val report by produceState(initialValue = "Querying cameras…", context) {
         value = withContext(Dispatchers.IO) { describeCameras(context) }
     }
@@ -42,13 +43,13 @@ fun CameraMediaScreen(onBack: () -> Unit) {
         FeatureBody(
             padding,
             "API 37 camera/media additions:\n" +
-                "• CameraCharacteristics.INFO_DEVICE_TYPE — built-in / USB / virtual\n" +
-                "• ImageFormat.RAW14 — 14-bit Bayer\n" +
-                "• MediaFormat.MIMETYPE_VIDEO_VVC (H.266) for OEM codecs\n" +
-                "• MediaRecorder.setVideoEncodingQuality() — constant-quality encode\n" +
-                "• Extended HE-AAC software encoder + Eclipsa HDR metadata (platform)\n" +
-                "• CameraX 1.5.2 / 1.6.0+ required on 17 devices (dynamic-range crash otherwise)\n\n" +
-                "Pre-37: Camera2 INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1."
+                    "• CameraCharacteristics.INFO_DEVICE_TYPE — built-in / USB / virtual\n" +
+                    "• ImageFormat.RAW14 — 14-bit Bayer\n" +
+                    "• MediaFormat.MIMETYPE_VIDEO_VVC (H.266) for OEM codecs\n" +
+                    "• MediaRecorder.setVideoEncodingQuality() — constant-quality encode\n" +
+                    "• Extended HE-AAC software encoder + Eclipsa HDR metadata (platform)\n" +
+                    "• CameraX 1.5.2 / 1.6.0+ required on 17 devices (dynamic-range crash otherwise)\n\n" +
+                    "Pre-37: Camera2 INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1."
         ) {
             Text(report)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
@@ -59,7 +60,7 @@ fun CameraMediaScreen(onBack: () -> Unit) {
             }
             Text(
                 "CQ encode (API 37): MediaRecorder().setVideoEncodingQuality(/* quality */ 80)\n" +
-                    "Pre-37: setVideoEncodingBitRate(bitrate) only. Quality overload: " +
+                        "Pre-37: setVideoEncodingBitRate(bitrate) only. Quality overload: " +
                         if (AndroidApis.isAndroid17) "available" else "compile-only"
             )
             // Touch the VideoEncoder table so you can jump-to-declaration in Studio.
@@ -68,10 +69,11 @@ fun CameraMediaScreen(onBack: () -> Unit) {
     }
 }
 
-// Both cameraIdList and getCameraCharacteristics throw CameraAccessException when the
-// camera service is unavailable, which is routine on emulators without a configured
-// camera and on devices where another app holds the camera. Uncaught, it takes the
-// screen down on open.
+/**
+ *
+ * Both cameraIdList and getCameraCharacteristics throw CameraAccessException when the camera service is unavailable, which is routine on emulators without a configured camera and on devices where another app holds the camera. Uncaught, it takes the screen down on open.
+ *
+ */
 private fun describeCameras(context: Context): String = try {
     describeCamerasOrThrow(context)
 } catch (e: CameraAccessException) {
