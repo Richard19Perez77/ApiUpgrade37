@@ -15,6 +15,14 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 import com.rick.apiupgrade37.ui.rememberNotificationGate
 
+/**
+ * - API 37: Notification.createSemanticStyleAnnotation (SAFE / CAUTION / DANGER / INFO)
+ *   plus setRequestPromotedOngoing(true). Custom RemoteViews are memory-capped more tightly.
+ * - Pre-37: Ongoing notifications without semantic colors. Custom RemoteViews were
+ *   looser (URI-based bypasses still worked).
+ * - Mixed — semantic colors and promoted ongoing are niceties. Stricter RemoteViews
+ *   limits at target 37 are a need if you still use custom layouts.
+ */
 @Composable
 fun LiveUpdateScreen(onBack: () -> Unit) {
     val context = LocalContext.current

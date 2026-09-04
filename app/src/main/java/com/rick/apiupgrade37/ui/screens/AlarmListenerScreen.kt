@@ -25,6 +25,16 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: setExactAndAllowWhileIdle(type, trigger, tag, executor, OnAlarmListener)
+ *   fires in-process with no BroadcastReceiver.
+ *
+ * - Pre-37: The only allow-while-idle exact form took a PendingIntent, so you needed
+ *   a receiver (and took an extra process wake).
+ *
+ * - Nicety — old PendingIntent form still works. Exact-alarm permission itself is a
+ *   need, but that policy is API 31/33, not 37.
+ */
 @Composable
 fun AlarmListenerScreen(onBack: () -> Unit) {
     val context = LocalContext.current

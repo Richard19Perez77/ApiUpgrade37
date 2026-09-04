@@ -19,6 +19,18 @@ import androidx.compose.ui.unit.dp
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: On sw > 600dp (and phones in desktop mode) the system ignores
+ *   screenOrientation, setRequestedOrientation, resizeableActivity=false, and
+ *   min/maxAspectRatio. Keyboard/touch/colorMode config changes go to
+ *   onConfigurationChanged instead of recreating the Activity.
+ *
+ * - Pre-37: Portrait locks and fixed aspect ratios still constrained the window.
+ *   Those config changes destroyed and recreated the Activity by default.
+ *
+ * - Need — layouts must reflow. App Bubbles / interactive desktop PiP are niceties
+ *   your UI also has to survive, but the lock-ignore is the upgrade tax.
+ */
 @Composable
 fun AdaptiveLayoutsScreen(
     onBack: (() -> Unit)?,

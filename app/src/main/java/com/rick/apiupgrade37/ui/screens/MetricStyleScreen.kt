@@ -13,6 +13,13 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 import com.rick.apiupgrade37.ui.rememberNotificationGate
 
+/**
+ * - API 37: Notification.MetricStyle + Notification.Metric (value, label, optional
+ *   SEMANTIC_STYLE_*) as a platform template.
+ * - Pre-37: BigText / Inbox / custom RemoteViews for health, timer, or travel readouts.
+ * - Nicety — old styles still post. POST_NOTIFICATIONS is required on 17 devices, but
+ *   that is API 33.
+ */
 @Composable
 fun MetricStyleScreen(onBack: () -> Unit) {
     val context = LocalContext.current

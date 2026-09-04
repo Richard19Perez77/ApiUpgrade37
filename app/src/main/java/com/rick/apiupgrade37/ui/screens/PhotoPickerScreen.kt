@@ -19,6 +19,14 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: PhotoPickerUiCustomizationParams sets thumbnail aspect ratio (here
+ *   portrait 9:16). PhotoPickerSelectionParams and EmbeddedPhotoPickerFeatureInfo
+ *   attach those params to the embedded picker.
+ * - Pre-37: PickVisualMedia / ACTION_PICK_IMAGES with no aspect-ratio extras
+ *   (Photo Picker itself arrived in API 33).
+ * - Nicety — PickVisualMedia still works; 9:16 is UI polish for social/video apps.
+ */
 @Composable
 fun PhotoPickerScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf("No photo yet") }

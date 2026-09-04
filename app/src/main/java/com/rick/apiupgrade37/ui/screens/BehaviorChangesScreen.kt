@@ -15,6 +15,39 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * These fire only when targetSdk is 37+, even if the device already runs Android 17.
+ *
+ * - API 37: MessageQueue is lock-free. Tests should use TestLooperManager.peekWhen() / poll().
+ *   Pre-37: tests often reflected on private MessageQueue fields (mMessages).
+ *   Need — if you reflected on the queue. Otherwise, a silent speedup.
+ *
+ * - API 37: Reflection or JNI SetStatic*Field on static final throws / crashes.
+ *   Pre-37: tests commonly patched Build.VERSION.SDK_INT via reflection.
+ *   Need — if tests or JNI mutate static finals. Use Robolectric or a wrapper.
+ *
+ * - API 37: System.load(path) on a writable .so throws UnsatisfiedLinkError.
+ *   Pre-37: API 34 already required read-only DEX/JAR; native .so files were still writable.
+ *   Need — if you extract and System.load() native libs. Prefer loadLibrary() from jniLibs.
+ *
+ * - API 37: Standard SMS OTPs are delayed 3 hours unless you are default SMS / assistant / companion.
+ *   Pre-37: apps could read OTP SMS promptly with SMS permissions.
+ *   Need — if you read OTPs from SMS. Switch to SMS Retriever or User Consent.
+ *
+ * - API 37: Background playback, audio focus, and volume APIs are hardened. Alarms stay exempt.
+ *   Pre-37: background audio/focus/volume often worked without a while-in-use FGS.
+ *   Need — if you play from the background. Use a correctly typed foreground service.
+ *
+ * - API 37: Apps that talk to the NPU must declare FEATURE_NEURAL_PROCESSING_UNIT or access can be blocked.
+ *   Pre-37: NNAPI / vendor NPU SDKs did not require this uses-feature.
+ *   Need — if you use LiteRT NPU, NNAPI, or a vendor NPU SDK.
+ *
+ * - API 37: Password fields no longer flash the last typed character with a hardware keyboard.
+ *   Keystore can mint ML-DSA; APK Signature Scheme v3.2 is hybrid classical + ML-DSA.
+ *   Pre-37: password fields could echo the last character. Signing was classical-only.
+ *   Nicety for the keyboard echo (automatic). PQC signing is a need only if you
+ *   self-manage keys and rotate; you must mint a new classical key to pair with ML-DSA.
+ */
 @Composable
 fun BehaviorChangesScreen(
     onBack: (() -> Unit)?,
@@ -87,7 +120,7 @@ fun BehaviorChangesScreen(
     }
     // This screen is reachable two ways: as a top-level tab (onBack == null), where the
     // tab bar owns the bottom inset, and as a catalog entry, where FeatureScaffold supplies
-    // its own bars. Hence the two branches.
+    // its own bars. Hence, the two branches.
     if (onBack == null) {
         Scaffold { padding ->
             // Carry the horizontal insets through. In landscape they hold the display

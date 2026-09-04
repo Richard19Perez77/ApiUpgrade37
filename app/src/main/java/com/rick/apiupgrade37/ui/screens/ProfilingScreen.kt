@@ -10,6 +10,14 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: ProfilingManager.addProfilingTriggers registers COLD_START, OOM,
+ *   KILL_EXCESSIVE_CPU_USAGE, and ANOMALY so the system can dump traces/heaps
+ *   without a manual requestProfiling() call.
+ * - Pre-37: ProfilingManager existed from API 35 for on-demand captures. Before
+ *   that: Debug.dumpHprofData() or manual traces.
+ * - Nicety — debug/ops. Useful next to the Android 17 memory killer, not required to run.
+ */
 @Composable
 fun ProfilingScreen(onBack: () -> Unit) {
     val context = LocalContext.current

@@ -14,6 +14,15 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * - API 37: The OS enforces per-app anonymous+swap caps and may kill offenders.
+ *   This screen reads ApplicationExitInfo; getDescription() may contain
+ *   MemoryLimiter:AnonSwap. Pair with ProfilingTrigger.TRIGGER_TYPE_ANOMALY.
+ * - Pre-37: No AnonSwap memory limiter. You still had LMK / LOW_MEMORY exits;
+ *   getHistoricalProcessExitReasons exists from API 30.
+ * - Need — you cannot opt out of the killer on Android 17 devices.
+ *   Reading exit reasons is a nicety (diagnostics), not required for correctness.
+ */
 @Composable
 fun MemoryLimitsScreen(onBack: () -> Unit) {
     val context = LocalContext.current

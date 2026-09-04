@@ -18,6 +18,15 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 import java.net.UnknownHostException
 
+/**
+ * - API 37: DnsResolver HTTPS-record query returns HttpsEndpoint / ECH configs.
+ *   network_security_config adds a domainEncryption element (opportunistic here).
+ *   Certificate Transparency is on by default at target 37.
+ * - Pre-37: Classic TLS with cleartext SNI. On API 36, CT was opt-in via
+ *   certificateTransparency enabled=true.
+ * - Mixed — CT default-on is a need (hosts without CT logs can fail).
+ *   Opportunistic ECH and the HTTPS DNS query are niceties.
+ */
 @Composable
 fun NetworkSecurityScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf("Tap to query HTTPS DNS (ECH configs)") }

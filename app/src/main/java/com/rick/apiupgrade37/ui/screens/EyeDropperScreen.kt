@@ -23,6 +23,15 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: Intent.ACTION_OPEN_EYE_DROPPER opens a system sampler and returns
+ *   Intent.EXTRA_COLOR (packed ARGB).
+ *
+ * - Pre-37: No platform eyedropper. Apps captured the screen (MediaProjection /
+ *   screenshots) just to read one pixel.
+ *
+ * - Nicety — optional unless you were capturing the display only to sample a color.
+ */
 @Composable
 fun EyeDropperScreen(onBack: () -> Unit) {
     var color by remember { mutableIntStateOf(Color.GRAY) }

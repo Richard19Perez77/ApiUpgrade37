@@ -15,6 +15,14 @@ import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
+/**
+ * - API 37: RangingManager capabilities expose uwbCapabilities.isDlTdoaSupported
+ *   (downlink TDoA vs multiple anchors). Starting a session uses DlTdoaRangingParams
+ *   (commented here — needs FiRa OOB from real anchors).
+ * - Pre-37: RangingManager itself is API 36 without this DL-TDoA path. Older UWB
+ *   apps used vendor/FiRa APIs outside this manager.
+ * - Nicety — only if you range. This screen only reads capabilities.
+ */
 @Composable
 fun UwbRangingScreen(onBack: () -> Unit) {
     val context = LocalContext.current

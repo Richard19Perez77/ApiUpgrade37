@@ -17,6 +17,14 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 import java.util.concurrent.TimeUnit
 
+/**
+ * - API 37: JobScheduler.getPendingJobReasonStats(jobId) returns PENDING_JOB_REASON_*
+ *   mapped to Duration (cumulative wait).
+ *
+ * - Pre-37: API 34 getPendingJobReason(id). API 36 getPendingJobReasonsHistory(id).
+ *
+ * - Nicety — jobs still schedule; this is a better debug readout.
+ */
 @Composable
 fun JobSchedulerScreen(onBack: () -> Unit) {
     val context = LocalContext.current
