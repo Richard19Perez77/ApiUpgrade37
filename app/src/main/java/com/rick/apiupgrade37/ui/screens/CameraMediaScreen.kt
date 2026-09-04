@@ -55,18 +55,15 @@ private fun describeCameras(context: Context): String {
     val cm = context.getSystemService(CameraManager::class.java)
     return cm.cameraIdList.joinToString("\n") { id ->
         val chars = cm.getCameraCharacteristics(id)
-        val type = if (AndroidApis.isAndroid17) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                when (chars.get(CameraCharacteristics.INFO_DEVICE_TYPE)) {
-                    CameraMetadata.INFO_DEVICE_TYPE_BUILT_IN -> "BUILT_IN"
-                    CameraMetadata.INFO_DEVICE_TYPE_EXTERNAL -> "EXTERNAL (USB)"
-                    CameraMetadata.INFO_DEVICE_TYPE_VIRTUAL -> "VIRTUAL"
-                    else -> "UNKNOWN"
-                }
-            } else {
-                TODO("VERSION.SDK_INT < CINNAMON_BUN")
+        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            when (chars.get(CameraCharacteristics.INFO_DEVICE_TYPE)) {
+                CameraMetadata.INFO_DEVICE_TYPE_BUILT_IN -> "BUILT_IN"
+                CameraMetadata.INFO_DEVICE_TYPE_EXTERNAL -> "EXTERNAL (USB)"
+                CameraMetadata.INFO_DEVICE_TYPE_VIRTUAL -> "VIRTUAL"
+                else -> "UNKNOWN"
             }
         } else {
+            // Pre-37: chars.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
             "INFO_DEVICE_TYPE requires API 37"
         }
         val facing = chars.get(CameraCharacteristics.LENS_FACING)

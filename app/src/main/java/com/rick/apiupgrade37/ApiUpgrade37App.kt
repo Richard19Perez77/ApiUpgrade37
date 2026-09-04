@@ -20,11 +20,10 @@ import java.util.concurrent.Executors
  */
 class ApiUpgrade37App : Application() {
 
-    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
-        if (AndroidApis.isAndroid17) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
             registerApi37ProfilingTriggers()
         }
     }

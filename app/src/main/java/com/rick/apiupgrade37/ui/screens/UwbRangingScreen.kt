@@ -26,19 +26,28 @@ fun UwbRangingScreen(onBack: () -> Unit) {
         val rm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             context.getSystemService(RangingManager::class.java)
         } else {
-            TODO("VERSION.SDK_INT < BAKLAVA")
+            // Pre-36: UWB via androidx.core.uwb / OEM SDKs. DL-TDoA is API 37.
+            null
         }
         val executor = Executors.newSingleThreadExecutor()
         val cb = RangingManager.RangingCapabilitiesCallback { caps ->
-            val uwb = caps.uwbCapabilities
+            val uwb = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                caps.uwbCapabilities
+            } else {
+                TODO("VERSION.SDK_INT < BAKLAVA")
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                 status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
                     "tech=${caps.technologyAvailability}"
             }
         }
-        rm?.registerCapabilitiesCallback(executor, cb)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            rm?.registerCapabilitiesCallback(executor, cb)
+        }
         onDispose {
-            rm?.unregisterCapabilitiesCallback(cb)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                rm?.unregisterCapabilitiesCallback(cb)
+            }
             executor.shutdown()
         }
     }

@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.jobs.DebugSampleJobService
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
@@ -62,12 +61,8 @@ private fun dumpReasons(scheduler: JobScheduler): String = buildString {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         append("getPendingJobReason=").append(scheduler.getPendingJobReason(id)).append('\n')
     }
-    if (AndroidApis.isAndroid17) {
-        val stats = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-            scheduler.getPendingJobReasonStats(id)
-        } else {
-            TODO("VERSION.SDK_INT < CINNAMON_BUN")
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+        val stats = scheduler.getPendingJobReasonStats(id)
         append("getPendingJobReasonStats:\n")
         if (stats.isEmpty()) append("  (empty)\n")
         else stats.forEach { (reason, duration) ->

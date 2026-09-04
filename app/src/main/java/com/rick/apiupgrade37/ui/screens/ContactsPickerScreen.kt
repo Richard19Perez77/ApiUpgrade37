@@ -64,27 +64,23 @@ fun ContactsPickerScreen(onBack: () -> Unit) {
         ) {
             Button(
                 onClick = {
-                    val intent = if (AndroidApis.isAndroid17) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                            Intent(ContactsPickerSessionContract.ACTION_PICK_CONTACTS).apply {
-                                putStringArrayListExtra(
-                                    ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS,
-                                    arrayListOf(
-                                        ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-                                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
-                                    )
+                    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                        Intent(ContactsPickerSessionContract.ACTION_PICK_CONTACTS).apply {
+                            putStringArrayListExtra(
+                                ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS,
+                                arrayListOf(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
+                                    ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
                                 )
-                                putExtra(ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT, 5)
-                                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                            }
-                        } else {
-                            TODO("VERSION.SDK_INT < CINNAMON_BUN")
+                            )
+                            putExtra(ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT, 5)
+                            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                         }
                     } else {
-                        // Pre-37: classic picker (still valid) or request READ_CONTACTS and query the provider.
-                        Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-                        // Force-preview the new UI on an API 37 device while targeting lower:
+                        // Pre-37: classic picker, or READ_CONTACTS + ContactsContract queries.
+                        // Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
                         // intent.putExtra("android.provider.extra.USE_SYSTEM_CONTACTS_PICKER", true)
+                        Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
                     }
                     picker.launch(intent)
                 }

@@ -17,7 +17,8 @@ fun ProfilingScreen(onBack: () -> Unit) {
         AndroidApis.isAndroid17 &&
             context.getSystemService(ProfilingManager::class.java) != null
     } else {
-        TODO("VERSION.SDK_INT < VANILLA_ICE_CREAM")
+        // Pre-35: Debug.dumpHprofData() / manual traces. ProfilingManager starts at API 35.
+        false
     }
 
     FeatureScaffold("Profiling triggers", onBack) { padding ->

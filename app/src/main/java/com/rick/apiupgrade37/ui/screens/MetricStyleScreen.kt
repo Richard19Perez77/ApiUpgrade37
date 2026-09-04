@@ -26,15 +26,12 @@ fun MetricStyleScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    val heart = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                        Notification.Metric(
-                            Notification.Metric.FixedInt(72, "bpm"),
-                            "Heart rate",
-                            Notification.SEMANTIC_STYLE_INFO
-                        )
-                    } else {
-                        TODO("VERSION.SDK_INT < CINNAMON_BUN")
-                    }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return@Button
+                    val heart = Notification.Metric(
+                        Notification.Metric.FixedInt(72, "bpm"),
+                        "Heart rate",
+                        Notification.SEMANTIC_STYLE_INFO
+                    )
                     val status = Notification.Metric(
                         Notification.Metric.FixedText("On time"),
                         "ETA",

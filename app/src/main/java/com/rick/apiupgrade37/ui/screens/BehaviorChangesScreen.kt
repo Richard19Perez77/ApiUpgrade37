@@ -21,7 +21,8 @@ fun BehaviorChangesScreen(
     val npu = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_NEURAL_PROCESSING_UNIT)
     } else {
-        TODO("VERSION.SDK_INT < CINNAMON_BUN")
+        // Pre-37: NNAPI via PackageManager.FEATURE_OPENGLES_EXTENSION_PACK / vendor extras.
+        false
     }
     val body = @Composable { padding: PaddingValues ->
         FeatureBody(

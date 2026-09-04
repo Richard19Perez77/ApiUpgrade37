@@ -4,7 +4,7 @@ import android.net.DnsResolver
 import android.net.dns.HttpsEndpoint
 import android.os.Build
 import android.os.CancellationSignal
-import android.os.ext.SdkExtensions
+import android.os.Looper
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,42 +37,38 @@ fun NetworkSecurityScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    val resolver = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // todo what to use here instead
-                        DnsResolver.getInstance()
-                    } else {
-                        TODO("VERSION.SDK_INT < Q")
-                    }
-                    // API 37: query(..., TYPE_HTTPS, ..., Callback<HttpsEndpoint>)
-                    // Pre-37: resolver.query(network, host, FLAG_EMPTY, executor, signal, Callback<List<InetAddress>>)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
-                            Build.VERSION_CODES.S) >= 22) {
-                        resolver.query(
-                            /* network = */ null,
-                            "cloudflare-ech.com",
-                            DnsResolver.FLAG_EMPTY,
-                            ContextCompat.getMainExecutor(context),
-                            DnsResolver.HTTPS_QUERY_WAIT_AUTO,
-                            CancellationSignal(),
-                            object : DnsResolver.Callback<HttpsEndpoint> {
-                                override fun onAnswer(answer: HttpsEndpoint, rcode: Int) {
-                                    val records = answer.httpsRecords
-                                    val ech = records.mapNotNull { rec ->
-                                        runCatching { rec.echConfigList }.getOrNull()
-                                    }
-                                    status = "rcode=$rcode records=${records.size} echConfigs=${ech.size}"
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return@Button
+                    val resolver = DnsResolver(context, Looper.getMainLooper())
+                    // Pre-37: DnsResolver.getInstance().query(..., Callback<List<InetAddress>>)
+                    // or rawQuery() for HTTPS records.
+                    resolver.query(
+                        /* network = */ null,
+                        "cloudflare-ech.com",
+                        DnsResolver.FLAG_EMPTY,
+                        ContextCompat.getMainExecutor(context),
+                        DnsResolver.HTTPS_QUERY_WAIT_AUTO,
+                        CancellationSignal(),
+                        object : DnsResolver.Callback<HttpsEndpoint> {
+                            override fun onAnswer(answer: HttpsEndpoint, rcode: Int) {
+                                val records = answer.httpsRecords
+                                val ech = records.mapNotNull { rec ->
+                                    runCatching { rec.echConfigList }.getOrNull()
                                 }
-
-                                override fun onError(error: DnsResolver.DnsException) {
-                                    status = "DNS error code=${error.code} ${error.message}"
-                                }
+                                status = "rcode=$rcode records=${records.size} echConfigs=${ech.size}"
                             }
-                        )
-                    }
+
+                            override fun onError(error: DnsResolver.DnsException) {
+                                status = "DNS error code=${error.code} ${error.message}"
+                            }
+                        }
+                    )
                 }
             ) { Text("Query HTTPS records") }
             Text(status)
-            Text("UnknownHostException on older stacks is expected if TYPE_HTTPS is unsupported: ${UnknownHostException::class.java.simpleName}")
+            Text(
+                "UnknownHostException on older stacks is expected if TYPE_HTTPS is unsupported: " +
+                    UnknownHostException::class.java.simpleName
+            )
         }
     }
 }

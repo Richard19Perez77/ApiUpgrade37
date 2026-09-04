@@ -63,7 +63,8 @@ private fun grantLabel(context: android.content.Context): String {
             Manifest.permission.ACCESS_LOCAL_NETWORK
         ) == PackageManager.PERMISSION_GRANTED
     } else {
-        TODO("VERSION.SDK_INT < CINNAMON_BUN")
+        // Pre-37: INTERNET was enough for LAN sockets.
+        true
     }
     return if (granted) "Already granted" else "Not granted — LAN is blocked for this app"
 }

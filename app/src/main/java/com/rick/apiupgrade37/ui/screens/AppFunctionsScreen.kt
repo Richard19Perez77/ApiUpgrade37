@@ -35,18 +35,26 @@ fun AppFunctionsScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                    val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                         context.getSystemService(AppFunctionManager::class.java)
                     } else {
-                        TODO("VERSION.SDK_INT < BAKLAVA")
+                        // Pre-37: expose actions via shortcuts, App Actions, or a custom assistant SDK.
+                        null
                     }
+                    if (mgr == null) return@Button
                     val fn = AppFunction { _, _, callback ->
-                        val doc = GenericDocument.Builder<GenericDocument.Builder<*>>(
-                            "api37",
-                            "note-1",
-                            "DemoNote"
-                        ).setPropertyString("title", "Created by AppFunction").build()
-                        callback.onResult(ExecuteAppFunctionResponse(doc))
+                        val doc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            GenericDocument.Builder<GenericDocument.Builder<*>>(
+                                "api37",
+                                "note-1",
+                                "DemoNote"
+                            ).setPropertyString("title", "Created by AppFunction").build()
+                        } else {
+                            TODO("VERSION.SDK_INT < S")
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                            callback.onResult(ExecuteAppFunctionResponse(doc))
+                        }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                         mgr.registerAppFunction(

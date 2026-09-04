@@ -29,26 +29,37 @@ fun PhotoPickerScreen(onBack: () -> Unit) {
     }
 
     val uiParams = remember {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
-                Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
             PhotoPickerUiCustomizationParams.Builder()
                 .setAspectRatio(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
                 .build()
         } else {
-            TODO("SdkExtensions.getExtensionVersion(UPSIDE_DOWN_CAKE) < 22")
+            // Pre-37: PickVisualMedia / ACTION_PICK_IMAGES without aspect-ratio extras.
+            null
         }
     }
     val selection = remember {
-        PhotoPickerSelectionParams.Builder()
-            .setMimeTypes(listOf("image/*", "video/*"))
-            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            PhotoPickerSelectionParams.Builder()
+                .setMimeTypes(listOf("image/*", "video/*"))
+                .build()
+        } else {
+            null
+        }
     }
-    val embeddedInfo = remember {
-        EmbeddedPhotoPickerFeatureInfo.Builder()
-            .setUiCustomizationParams(uiParams)
-            .setSelectionParams(selection)
-            .setMaxSelectionLimit(3)
-            .build()
+    val embeddedInfo = remember(uiParams, selection) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN &&
+            uiParams != null &&
+            selection != null
+        ) {
+            EmbeddedPhotoPickerFeatureInfo.Builder()
+                .setUiCustomizationParams(uiParams)
+                .setSelectionParams(selection)
+                .setMaxSelectionLimit(3)
+                .build()
+        } else {
+            null
+        }
     }
 
     FeatureScaffold("Photo picker", onBack) { padding ->
@@ -59,10 +70,15 @@ fun PhotoPickerScreen(onBack: () -> Unit) {
                 "thumbnails can be portrait 9:16 (social/video apps) or square.\n\n" +
                 "ActivityResultContracts.PickVisualMedia() is still the right launch path for " +
                 "a standalone picker. The new params attach to the embedded picker via " +
-                "EmbeddedPhotoPickerFeatureInfo (SurfaceControlViewHost) — built below so you " +
-                "can inspect the objects; wiring the surface is OEM/system UI."
+                "EmbeddedPhotoPickerFeatureInfo (SurfaceControlViewHost)."
         ) {
-            Text("uiParams.aspectRatio=${uiParams.aspectRatio} embedded.max=${embeddedInfo.maxSelectionLimit}")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
+                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22) {
+                Text(
+                    "uiParams.aspectRatio=${uiParams?.aspectRatio ?: "n/a"} " +
+                        "embedded.max=${embeddedInfo?.maxSelectionLimit ?: "n/a"}"
+                )
+            }
             Button(
                 onClick = {
                     picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))

@@ -23,17 +23,23 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
-        val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
             context.getSystemService(AdvancedProtectionManager::class.java)
         } else {
-            TODO("VERSION.SDK_INT < BAKLAVA")
+            // Pre-37: no AdvancedProtectionManager. Infer from DevicePolicyManager / Play Protect.
+            null
         }
         val cb = AdvancedProtectionManager.Callback { value -> enabled = value }
-        mgr?.registerAdvancedProtectionCallback(
-            ContextCompat.getMainExecutor(context),
-            cb
-        )
-        onDispose { mgr?.unregisterAdvancedProtectionCallback(cb) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            mgr?.registerAdvancedProtectionCallback(
+                ContextCompat.getMainExecutor(context),
+                cb
+            )
+        }
+        onDispose { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            mgr?.unregisterAdvancedProtectionCallback(cb)
+        }
+        }
     }
 
     FeatureScaffold("Advanced Protection", onBack) { padding ->
@@ -53,10 +59,10 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 
 private fun readEnabled(context: Context): Boolean {
     if (!AndroidApis.isAndroid17) return false
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
         context.getSystemService(AdvancedProtectionManager::class.java)
             ?.isAdvancedProtectionEnabled == true
     } else {
-        TODO("VERSION.SDK_INT < BAKLAVA")
+        false
     }
 }
