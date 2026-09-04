@@ -32,7 +32,7 @@ fun LocalNetworkScreen(onBack: () -> Unit) {
 
     FeatureScaffold("Local network", onBack) { padding ->
         FeatureBody(
-            padding,
+            padding,/**/
             "Targeting API 37, unprivileged apps cannot open sockets to local-network hosts " +
                 "until ACCESS_LOCAL_NETWORK is granted (or you use a system device picker).\n\n" +
                 "Pre-37: INTERNET was enough to hit 192.168.x.x / mDNS printers / smart plugs.\n" +

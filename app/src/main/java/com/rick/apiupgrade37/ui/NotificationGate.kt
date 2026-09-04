@@ -57,7 +57,10 @@ fun rememberNotificationGate(): NotificationGate {
     return remember(launcher) {
         NotificationGate(
             isGranted = { granted },
-            request = { launcher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+            request = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            }
         )
     }
 }
