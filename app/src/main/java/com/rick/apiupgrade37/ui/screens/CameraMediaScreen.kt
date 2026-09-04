@@ -21,6 +21,58 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
+ *
+ *  Camera and media code enhancements
+ *
+ *  APIs:
+ *      Camera device types
+ *      RAW image formats
+ *      Video codes
+ *      Encoding quality
+ *
+ *  Camera Device type now has built in USB virtual: Clarity
+ *  RAW Format RAW14 (14-bit) gives more quality
+ *  Video Codec has VVC (H.266) Efficiency
+ *  Encoding Quality is now quality-based Simplicity
+ *  HDR Metadata Eclipsa HDR for more quality
+ *
+ *  INFO_DEVICE_TYPE
+ *      will tell if it's built in or external
+ *      can tell USB webcams from internal camers
+ *      now has virtual camera support
+ *
+ *  RAW14 Image Format (ImageFormat.RAW14)
+ *      excellent quality for professional photography
+ *
+ *  VVC (H.266) Codec
+ *      excellent quality, half the size, faster streaming
+ *
+ *  setVideoEncodingQuality()
+ *      quality based encoding
+ *      bitrate flexibility
+ *
+ *  CameraX:
+ *      1.5.2 / 1.6.0+ required on 17 devices (dynamic-range crash otherwise)
+ *
+ *  INFO_DEVICE_TYPE:
+ *      BUILT_IN
+ *      EXTERNAL (USB)
+ *      VIRTUAL
+ *
+ *  Use Cases:
+ *      USB Webcam Support
+ *      Professional Photography
+ *      8K Video Recording
+ *      Constant Quality Encoding
+ *
+ *  Real-world:
+ *      better streaming
+ *      editing flexibility
+ *      3x camera support
+ *
+ *  Professional creative platform:
+ *      RAW14, VVC, and external camera support.
+ *
  * - API 37: CameraCharacteristics.INFO_DEVICE_TYPE (built-in / USB / virtual), ImageFormat.RAW14, MediaFormat.MIMETYPE_VIDEO_VVC, and MediaRecorder.setVideoEncodingQuality() for constant-quality encode.
  *
  * - Pre-37: INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1; bitrate via setVideoEncodingBitRate().

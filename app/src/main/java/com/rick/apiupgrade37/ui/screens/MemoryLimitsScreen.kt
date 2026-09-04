@@ -16,6 +16,81 @@ import kotlinx.coroutines.withContext
 
 /**
  *
+ *  Memory Management Enforcement
+ *      strict enforcing per-app memory caps
+ *      kill apps that exceed them
+ *
+ *  API 37 provides:
+ *      Per-app anonymous + swap memory caps
+ *      Memroy limiter
+ *      Kills offenders
+ *      Detailed exit reasons
+ *
+ *  Anonymous Memory
+ *      Java heap
+ *      Native heap
+ *      Stack memory
+ *      Bitmap pixel data
+ *      Code cache
+ *
+ *  Reasons:
+ *      LOW_MEMORY
+ *      EXCESSIVE_RESOURCE_USAGE
+ *      CRASH
+ *      ANR
+ *
+ *  Memroy Limiter Exit Description
+ *      AnonSwap
+ *      GraphicBuffer
+ *      NativeHeap
+ *      JavaHeap
+ *
+ *  Real world prevention reasons:
+ *      Memory Leak
+ *      Large Bitmap
+ *      Native Memory
+ *
+ *  Prevention:
+ *      1. Use LeakCanary
+ *      2. Enable R8 Full Mode
+ *      3. Use Bitmap Pooling
+ *      4. Use Profiling Triggers
+ *
+ *  ART imrprovements:
+ *      lower memory footprint
+ *      better performance
+ *      faster gc pauses
+ *      backported to API 31+ via Play System Updates
+ *
+ *  Android 17:
+ *      hard caps prevent abuse
+ *      offending apps get killed immediately
+ *      system stays healthy for other apps
+ *      clear diagnostics show why app died
+ *      developers can fix memory issues proactively
+ *
+ *  API 37 - majory step forward
+ *      hard per app caps
+ *      memory limiter
+ *      exit diagnostics
+ *      better gc
+ *      backported improvements
+ *
+ *  Needed for:
+ *      lowend devices with linited RAM
+ *      enterprise deployment
+ *      kiosk devices
+ *      multitasking scenarios
+ *
+ *  Developer Action Items:
+ *      fix memory leaks with LeakCanary
+ *      use R8 full mode for optimization
+ *      monitory memory usage with profiling triggers
+ *      check ApplicationExitInfo for Memory/Limiter kills
+ *      implement bitmap pooling to reduce allocations
+ *
+ *
+ *
  * - API 37: The OS enforces per-app anonymous+swap caps and may kill offenders.
  *      This screen reads ApplicationExitInfo; getDescription() may contain MemoryLimiter:AnonSwap.
  *      Pair with ProfilingTrigger.TRIGGER_TYPE_ANOMALY.
