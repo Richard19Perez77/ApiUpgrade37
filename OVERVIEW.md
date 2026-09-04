@@ -51,7 +51,7 @@ The theme is replacing broad, permanent permissions with system-rendered pickers
 | `ACCESS_LOCAL_NETWORK`, part of the NEARBY_DEVICES group | Reaching LAN devices with nothing but `INTERNET` | Local network |
 | `PhotoPickerUiCustomizationParams` for 9:16 or 1:1 thumbnails | An app-built gallery grid | Photo picker |
 | Encrypted Client Hello, configured with `<domainEncryption>` | A cleartext SNI in the TLS handshake | ECH and CT |
-| Certificate Transparency on by default | Opting in per-domain, as you had to on API 36 | `network_security_config.xml` |
+| Certificate Transparency on by default | Opting in per-domain, as you had to on API 36 | ECH and CT |
 
 Two more privacy changes have no demo screen. A system-rendered location button grants precise location for the current session only, and password fields no longer echo the last typed character when a hardware keyboard is attached.
 
@@ -63,9 +63,9 @@ SMS one-time passwords are now delayed by three hours for apps targeting 37 that
 
 Several of these are silent: nothing warns you at build time, and the failure only appears at runtime after you bump `targetSdk`.
 
-- `android.os.MessageQueue` becomes lock-free. It is faster, but any code that reflects on the queue's private fields breaks. Instrumentation tests should use `TestLooperManager.peekWhen()` and `poll()` instead.
-- `static final` fields can no longer be modified. Reflection now throws `IllegalAccessException`, and the JNI `SetStatic*Field` family crashes the process. This rules out the common trick of patching `Build.VERSION.SDK_INT` in unit tests; use Robolectric shadows or your own wrapper.
-- The system enforces per-app memory limits based on total device RAM and terminates processes that exceed them. When that happens, `ApplicationExitInfo.getDescription()` contains `MemoryLimiter:AnonSwap`.
+- `android.os.MessageQueue` becomes lock-free. It is faster, but any code that reflects on the queue's private fields breaks. Instrumentation tests should use `TestLooperManager.peekWhen()` and `poll()` instead; `ExampleInstrumentedTest.kt` carries the same warning.
+- `static final` fields can no longer be modified. Reflection now throws `IllegalAccessException`, and the JNI `SetStatic*Field` family crashes the process. This rules out the common trick of patching `Build.VERSION.SDK_INT` in unit tests; use Robolectric shadows or your own wrapper. `ExampleUnitTest.kt` shows the idiom that stops working and why `AndroidApis` is the first step toward a testable one.
+- The system enforces per-app memory limits based on total device RAM and terminates processes that exceed them. When that happens, `ApplicationExitInfo.getDescription()` may contain `MemoryLimiter:AnonSwap` — treat it as a diagnostic hint rather than a stable contract to parse.
 - `ProfilingManager`, which arrived in API 35, gains four triggers: `TRIGGER_TYPE_COLD_START`, `TRIGGER_TYPE_OOM`, `TRIGGER_TYPE_KILL_EXCESSIVE_CPU_USAGE`, and `TRIGGER_TYPE_ANOMALY`. The anomaly trigger is the useful one for memory limits, because it can hand you a heap dump before the system kills the process. Note that `TRIGGER_TYPE_OOM` only works if your uncaught exception handler calls through to the default one.
 - `JobScheduler.getPendingJobReasonStats(jobId)` returns a map of pending reason to cumulative `Duration`, folding together `getPendingJobReason` from API 34 and the reason history added in API 36.
 - `AlarmManager.setExactAndAllowWhileIdle` gains an overload taking an `Executor` and an `OnAlarmListener` instead of a `PendingIntent`. It suits apps that were holding a wake lock to run a short periodic task, such as a socket keepalive. The exact-alarm permission rules are unchanged, so check `canScheduleExactAlarms()` before calling either form; see the traps section.
@@ -161,3 +161,6 @@ These all cost time while building this project.
 | `MainActivity.kt` | Handoff override alongside an ungated `onCreate` |
 | `ui/NotificationGate.kt` | The `POST_NOTIFICATIONS` runtime grant both notification samples need |
 | `ui/screens/*.kt` | One file per catalog entry; the mapping is in the README |
+| `app/src/test/…/ExampleUnitTest.kt` | Why `static final` being frozen breaks SDK_INT patching |
+| `app/src/androidTest/…/ExampleInstrumentedTest.kt` | Checking a version gate against a real device |
+| `app/build.gradle.kts` | AGP 9 `compileSdk { }` and `optimization { }` syntax |

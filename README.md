@@ -23,13 +23,19 @@ The two Java numbers are unrelated and often confused. The JDK that *runs* Gradl
 
 You also need the API 37 platform installed (`platforms/android-37.0`). Several demos only produce real output on an Android 17 device or emulator; on older images they show an explanatory message instead.
 
-```bash
-# Windows
-.\gradlew.bat :app:assembleDebug
+Treat lint as part of the build rather than an optional extra: `assembleDebug` will happily package things `lintDebug` rejects, invalid backup rules among them.
 
-# macOS / Linux
-./gradlew :app:assembleDebug
+```powershell
+# Windows
+.\gradlew.bat :app:assembleDebug :app:lintDebug :app:testDebugUnitTest
 ```
+
+```bash
+# macOS / Linux
+./gradlew :app:assembleDebug :app:lintDebug :app:testDebugUnitTest
+```
+
+Those unit tests run on the desktop JVM, so they only cover code that never calls into the framework. The instrumented tests in `app/src/androidTest/` need a device or emulator, and they are the honest way to check a version gate because the device supplies the real SDK level — see the note in `ExampleUnitTest.kt` on why you can no longer force that level by reflection.
 
 ## Finding your way around the app
 
@@ -82,25 +88,35 @@ Two more rules apply across the screens:
 
 ## Repository layout
 
+The build files carry comments too — `app/build.gradle.kts` explains the AGP 9 `compileSdk { }` and `optimization { }` blocks, and `settings.gradle.kts` explains where the Java 25 daemon JDK comes from.
+
 ```
 ApiUpgrade37/
 ├── OVERVIEW.md
 ├── README.md
-└── app/src/main
-    ├── AndroidManifest.xml                    ACCESS_LOCAL_NETWORK, NPU feature, adaptive notes
-    ├── res/xml/network_security_config.xml    ECH and Certificate Transparency
-    ├── res/xml/data_extraction_rules.xml      Backup rules for API 31+
-    └── java/com/rick/apiupgrade37
-        ├── ApiUpgrade37App.kt                 ProfilingManager triggers
-        ├── MainActivity.kt                    Edge-to-edge and Handoff
-        ├── core/AndroidApis.kt                CINNAMON_BUN gate and @ChecksSdkIntAtLeast
-        ├── jobs/DebugSampleJobService.kt      Job used by the JobScheduler demo
-        └── ui/
-            ├── Api37App.kt                    Tab chrome and routing
-            ├── Catalog.kt                     The catalog rows
-            ├── FeatureScaffold.kt             Shared top bar and body for every demo
-            ├── NotificationGate.kt            POST_NOTIFICATIONS runtime grant
-            └── screens/                       One file per demo
+├── settings.gradle.kts                        Repositories and the foojay JDK resolver
+├── gradle/libs.versions.toml                  Every dependency version
+└── app/src
+    ├── main
+    │   ├── AndroidManifest.xml                    ACCESS_LOCAL_NETWORK, NPU feature, adaptive notes
+    │   ├── keepRules/rules.keep                   R8 keep rules
+    │   ├── res/xml/network_security_config.xml    ECH and Certificate Transparency
+    │   ├── res/xml/data_extraction_rules.xml      Backup rules for API 31+
+    │   ├── res/xml/backup_rules.xml               Backup rules for API 23–30
+    │   └── java/com/rick/apiupgrade37
+    │       ├── ApiUpgrade37App.kt                 ProfilingManager triggers
+    │       ├── MainActivity.kt                    Edge-to-edge and Handoff
+    │       ├── core/AndroidApis.kt                CINNAMON_BUN gate and @ChecksSdkIntAtLeast
+    │       ├── jobs/DebugSampleJobService.kt      Job used by the JobScheduler demo
+    │       └── ui/
+    │           ├── Api37App.kt                    Tab chrome and routing
+    │           ├── Catalog.kt                     The catalog rows
+    │           ├── FeatureScaffold.kt             Shared top bar and body for every demo
+    │           ├── NotificationGate.kt            POST_NOTIFICATIONS runtime grant
+    │           ├── theme/                         Material 3 theme and dynamic color
+    │           └── screens/                       One file per demo
+    ├── test/                                  JVM tests, and why SDK_INT is no longer patchable
+    └── androidTest/                           Device tests, where version gates are checked
 ```
 
 ## Catalog entries and their source files
