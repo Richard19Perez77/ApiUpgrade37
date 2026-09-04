@@ -19,6 +19,76 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 import java.net.UnknownHostException
 
 /**
+ *
+ *  Network Security Enhancements
+ *      ECH hides SNI - hides SNI (Server Name Indication)
+ *      HTTPS DNS Records - query for ECH configurations via DNS
+ *      Certificate Transparency - enabled by default
+ *      Domain Encryption - new network security config element
+ *
+ *  ECH - Encrypted Client Hello
+ *      Privacy issues -> now encrypted where SNI was plain text
+ *
+ *  API 37 improves:
+ *      SNI privacy with Encrypted SNI (ECH)
+ *      DNS HTTPS Records DnsResolver queries improves Discovery
+ *      ECH Configs, the default is on and effortless
+ *      Certificate Transparency is now on by default for Security
+ *      Domain Encryption domainEncryption element instills control
+ *
+ *  DnsResolver Setup
+ *      Creates a DNS resolver instance
+ *      Uses main looper for callback dispatch
+ *      Can query HTTPS records (new in API 37)
+ *
+ *  Querying HTTPS Records
+ *      DNS HTTPS resource records
+ *      Contains ECH configuration
+ *      Used to encrypt SNI
+ *
+ *  Processing HTTPS Records
+ *      List of HTTPS RRs
+ *      ECH configuration from each record
+ *      Status Update - shows what was found
+ *
+ *  Certificate Transparency (CT)
+ *      All SSL/TLS certificate are logged publicly
+ *      Browser/OSes check the logs
+ *      Forge certificate are detected quickly
+ *      Security is improved
+ *
+ *  <certificateTransparency enabled="true" />
+ *      No need for this in network-security-config and domain-config
+ *
+ *  domainEncryption
+ *      mode="opportunistic"
+ *      trustAnchors="system"
+ *
+ *  Security Implications:
+ *      Privacy
+ *      Content Filtering
+ *      Censorship
+ *
+ *  Testing ECH
+ *      ECH - encrypts SNI privacy for all users
+ *      HTTPS DNS Records discovers ECH config for all apps
+ *      Certificate Transparency detects forged certificates all users security
+ *      Domain Encryption will Control ECH behavior helps Discover
+ *      CT Default more secure by default all users benefit
+ *
+ *  The "Why" Behind This Change
+ *      SNI is ecnrypted - privacy preserved
+ *      CT is default - improved security automatically
+ *      ECH auto-discovers - no manual config needed
+ *      DNS HTTPS records - standardizes discovery
+ *      Better privacy and security for all users
+ *
+ *  API 37 privacy and security by default:
+ *      makes the web more private and secure
+ *      without devs doing anything
+ *      ECH, CT default-on and DNS HTTPS records work together to
+ *
+ *
  * - API 37: DnsResolver HTTPS-record query returns HttpsEndpoint / ECH configs. network_security_config adds a domainEncryption element (opportunistic here).
  *      Certificate Transparency is on by default at target 37.
  *
