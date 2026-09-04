@@ -1,12 +1,14 @@
-# Add project specific R8 rules here.
-# AGP will combine all keep rule files in src/main/keepRules to pass to R8
+# R8 / memory limits (Android 17)
 #
-# For more details, see
-#   https://d.android.com/r/tools/r8/keep-rules
+# Targeting API 37, the system can terminate processes that exceed device-RAM-based
+# anonymous+swap limits. ApplicationExitInfo.getDescription() may contain
+# "MemoryLimiter:AnonSwap" in that case.
+#
+# Use R8 in full mode (minifyEnabled / optimization.enable) for release so unused
+# classes, methods, and fields are stripped. This sample keeps optimization off in
+# debug so the educational API surface is easy to inspect in the APK Analyzer.
+#
+# If you enable R8, keep JobService and AppFunction entry points that are only
+# referenced from the manifest / system binder.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-keep class com.rick.apiupgrade37.jobs.DebugSampleJobService { *; }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security for apps targeting API 37 (Android 17).
+
+  Certificate Transparency:
+    API 36 (Baklava): CT available, apps had to opt in.
+    API 37: CT is enabled by default for apps targeting 37.
+    Explicit <certificateTransparency enabled="true" /> documents the intent.
+    Use enabled="false" only for debug/local stacks you fully control.
+
+  Encrypted Client Hello (ECH / "domain encryption"):
+    New <domainEncryption mode="..." /> element (base or domain-config).
+    Modes: opportunistic | enabled | disabled
+    Targeting 37 + platform flag: default is opportunistic (use ECH when DNS HTTPS
+    records provide a config; fall back to classic TLS if not).
+    Libraries (HttpEngine, WebView, OkHttp) adopt the platform Conscrypt/DnsResolver APIs.
+
+  Cleartext:
+    Targeting P+ already blocked cleartext by default. Targeting 37 still blocks HTTP
+    unless a domain-config explicitly allows it. Prefer HTTPS; if you must hit
+    http://10.0.2.2 for an emulator, uncomment the debug domain-config below.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+        <certificateTransparency enabled="true" />
+        <!-- Opportunistic ECH: encrypt SNI when an HTTPS DNS record supplies ECHConfigList. -->
+        <domainEncryption mode="opportunistic" />
+    </base-config>
+
+    <!-- Example: require ECH for a specific host (handshake fails if ECH cannot be used). -->
+    <!--
+    <domain-config>
+        <domain includeSubdomains="true">ech-only.example.com</domain>
+        <domainEncryption mode="enabled" />
+    </domain-config>
+    -->
+
+    <!-- Pre-37 / emulator HTTP debug (keep commented for a 37-correct default):
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <certificateTransparency enabled="false" />
+        <domainEncryption mode="disabled" />
+    </domain-config>
+    -->
+</network-security-config>

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ApiUpgrade37</string>
+    <string name="app_name">API 37 Lab</string>
+    <string name="notification_channel_live">Live updates</string>
+    <string name="notification_channel_metrics">Metrics</string>
 </resources>

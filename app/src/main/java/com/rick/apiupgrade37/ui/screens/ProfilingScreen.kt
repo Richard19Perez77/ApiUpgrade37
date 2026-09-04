@@ -1,0 +1,39 @@
+package com.rick.apiupgrade37.ui.screens
+
+import android.os.ProfilingManager
+import android.os.ProfilingTrigger
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import com.rick.apiupgrade37.core.AndroidApis
+import com.rick.apiupgrade37.ui.FeatureBody
+import com.rick.apiupgrade37.ui.FeatureScaffold
+
+@Composable
+fun ProfilingScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val present = AndroidApis.isAndroid17 &&
+        context.getSystemService(ProfilingManager::class.java) != null
+
+    FeatureScaffold("Profiling triggers", onBack) { padding ->
+        FeatureBody(
+            padding,
+            "ProfilingManager (API 35) gained Android 17 system triggers. " +
+                "ApiUpgrade37App registers them at process start so cold-start traces can fire.\n\n" +
+                "TRIGGER_TYPE_COLD_START — stack sample + system trace\n" +
+                "TRIGGER_TYPE_OOM — Java heap dump (your UncaughtExceptionHandler MUST call the default handler)\n" +
+                "TRIGGER_TYPE_KILL_EXCESSIVE_CPU_USAGE — stack sample before a CPU kill\n" +
+                "TRIGGER_TYPE_ANOMALY — heap dump / binder spam profile before MemoryLimiter kills you\n\n" +
+                "Older approach: Debug.dumpHprofData() from a signal, or manual " +
+                "ProfilingManager.requestProfiling() (still valid for on-demand captures)."
+        ) {
+            Text("Triggers registered in Application: $present")
+            Text(
+                "Trigger constants: " +
+                    "OOM=${ProfilingTrigger.TRIGGER_TYPE_OOM} " +
+                    "ANOMALY=${ProfilingTrigger.TRIGGER_TYPE_ANOMALY} " +
+                    "COLD=${ProfilingTrigger.TRIGGER_TYPE_COLD_START}"
+            )
+        }
+    }
+}

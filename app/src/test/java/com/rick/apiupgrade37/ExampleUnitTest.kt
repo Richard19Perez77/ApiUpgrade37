@@ -1,17 +1,18 @@
 package com.rick.apiupgrade37
 
+import com.rick.apiupgrade37.core.AndroidApis
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
-import org.junit.Assert.*
-
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun android17DessertCodeIsApi37() {
+        assertEquals(37, AndroidApis.ANDROID_17)
+    }
+
+    @Test
+    fun catalogIsNotEmpty() {
+        assertTrue(com.rick.apiupgrade37.ui.catalogItems.size >= 15)
     }
 }
