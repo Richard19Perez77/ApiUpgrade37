@@ -4,6 +4,7 @@ import android.app.appfunctions.AppFunction
 import android.app.appfunctions.AppFunctionManager
 import android.app.appfunctions.ExecuteAppFunctionResponse
 import android.app.appsearch.GenericDocument
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +35,11 @@ fun AppFunctionsScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    val mgr = context.getSystemService(AppFunctionManager::class.java)
+                    val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                        context.getSystemService(AppFunctionManager::class.java)
+                    } else {
+                        TODO("VERSION.SDK_INT < BAKLAVA")
+                    }
                     val fn = AppFunction { _, _, callback ->
                         val doc = GenericDocument.Builder<GenericDocument.Builder<*>>(
                             "api37",
@@ -43,11 +48,13 @@ fun AppFunctionsScreen(onBack: () -> Unit) {
                         ).setPropertyString("title", "Created by AppFunction").build()
                         callback.onResult(ExecuteAppFunctionResponse(doc))
                     }
-                    mgr.registerAppFunction(
-                        "createNote",
-                        ContextCompat.getMainExecutor(context),
-                        fn
-                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                        mgr.registerAppFunction(
+                            "createNote",
+                            ContextCompat.getMainExecutor(context),
+                            fn
+                        )
+                    }
                     status = "Registered createNote — use the AppFunctions test agent / ADB to invoke it"
                 }
             ) { Text("Register createNote()") }

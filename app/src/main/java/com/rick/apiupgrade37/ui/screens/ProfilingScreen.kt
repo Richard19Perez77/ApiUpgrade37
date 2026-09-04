@@ -1,5 +1,6 @@
 package com.rick.apiupgrade37.ui.screens
 
+import android.os.Build
 import android.os.ProfilingManager
 import android.os.ProfilingTrigger
 import androidx.compose.material3.Text
@@ -12,8 +13,12 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 @Composable
 fun ProfilingScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val present = AndroidApis.isAndroid17 &&
-        context.getSystemService(ProfilingManager::class.java) != null
+    val present = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        AndroidApis.isAndroid17 &&
+            context.getSystemService(ProfilingManager::class.java) != null
+    } else {
+        TODO("VERSION.SDK_INT < VANILLA_ICE_CREAM")
+    }
 
     FeatureScaffold("Profiling triggers", onBack) { padding ->
         FeatureBody(
@@ -28,12 +33,14 @@ fun ProfilingScreen(onBack: () -> Unit) {
                 "ProfilingManager.requestProfiling() (still valid for on-demand captures)."
         ) {
             Text("Triggers registered in Application: $present")
-            Text(
-                "Trigger constants: " +
-                    "OOM=${ProfilingTrigger.TRIGGER_TYPE_OOM} " +
-                    "ANOMALY=${ProfilingTrigger.TRIGGER_TYPE_ANOMALY} " +
-                    "COLD=${ProfilingTrigger.TRIGGER_TYPE_COLD_START}"
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                Text(
+                    "Trigger constants: " +
+                        "OOM=${ProfilingTrigger.TRIGGER_TYPE_OOM} " +
+                        "ANOMALY=${ProfilingTrigger.TRIGGER_TYPE_ANOMALY} " +
+                        "COLD=${ProfilingTrigger.TRIGGER_TYPE_COLD_START}"
+                )
+            }
         }
     }
 }

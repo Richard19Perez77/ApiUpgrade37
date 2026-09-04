@@ -3,6 +3,7 @@ package com.rick.apiupgrade37.ui.screens
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -29,7 +30,9 @@ fun EyeDropperScreen(onBack: () -> Unit) {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            color = result.data?.getIntExtra(Intent.EXTRA_COLOR, Color.BLACK) ?: Color.BLACK
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                color = result.data?.getIntExtra(Intent.EXTRA_COLOR, Color.BLACK) ?: Color.BLACK
+            }
         }
     }
 
@@ -49,7 +52,10 @@ fun EyeDropperScreen(onBack: () -> Unit) {
             Text(String.format("#%08X", color))
             Button(
                 enabled = AndroidApis.isAndroid17,
-                onClick = { launcher.launch(Intent(Intent.ACTION_OPEN_EYE_DROPPER)) }
+                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                    launcher.launch(Intent(Intent.ACTION_OPEN_EYE_DROPPER))
+                }
+                }
             ) {
                 Text(if (AndroidApis.isAndroid17) "Open system eyedropper" else "Requires API 37 device")
             }

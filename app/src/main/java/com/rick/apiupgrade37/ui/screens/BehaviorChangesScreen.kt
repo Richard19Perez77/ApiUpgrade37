@@ -18,8 +18,12 @@ fun BehaviorChangesScreen(
     listPadding: PaddingValues = PaddingValues()
 ) {
     val context = LocalContext.current
-    val npu = context.packageManager.hasSystemFeature(PackageManager.FEATURE_NEURAL_PROCESSING_UNIT)
-    val body = @Composable { padding: androidx.compose.foundation.layout.PaddingValues ->
+    val npu = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_NEURAL_PROCESSING_UNIT)
+    } else {
+        TODO("VERSION.SDK_INT < CINNAMON_BUN")
+    }
+    val body = @Composable { padding: PaddingValues ->
         FeatureBody(
             padding,
             "These fire only when targetSdk is 37+, even if the device already runs Android 17."

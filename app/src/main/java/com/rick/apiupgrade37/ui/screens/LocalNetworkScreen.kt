@@ -3,6 +3,7 @@ package com.rick.apiupgrade37.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
@@ -43,7 +44,10 @@ fun LocalNetworkScreen(onBack: () -> Unit) {
             Text(status)
             Button(
                 enabled = AndroidApis.isAndroid17,
-                onClick = { launcher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK) }
+                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                    launcher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+                }
+                }
             ) { Text("Request ACCESS_LOCAL_NETWORK") }
             val wifi = context.applicationContext.getSystemService(WifiManager::class.java)
             Text("Wi-Fi enabled=${wifi?.isWifiEnabled} (not a substitute for the new permission)")
@@ -53,9 +57,13 @@ fun LocalNetworkScreen(onBack: () -> Unit) {
 
 private fun grantLabel(context: android.content.Context): String {
     if (!AndroidApis.isAndroid17) return "Device < 37: local-network block is not targetSdk-gated here"
-    val granted = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_LOCAL_NETWORK
-    ) == PackageManager.PERMISSION_GRANTED
+    val granted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_LOCAL_NETWORK
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        TODO("VERSION.SDK_INT < CINNAMON_BUN")
+    }
     return if (granted) "Already granted" else "Not granted — LAN is blocked for this app"
 }

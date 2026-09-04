@@ -3,6 +3,7 @@ package com.rick.apiupgrade37.ui.screens
 import android.media.AudioAttributes
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.os.Build
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,9 +38,15 @@ fun HearingAidScreen(onBack: () -> Unit) {
                 "peripherals keep controlling the assistant stream outside active playback.\n\n" +
                 "Users can route notifications/ring/alarm to the aid or the speaker independently."
         ) {
-            Text("STREAM_ASSISTANT=${AudioManager.STREAM_ASSISTANT}")
-            Text("USAGE_ASSISTANT=${AudioAttributes.USAGE_ASSISTANT}")
-            Text("MODE_ASSISTANT_CONVERSATION=${AudioManager.MODE_ASSISTANT_CONVERSATION}")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                Text("STREAM_ASSISTANT=${AudioManager.STREAM_ASSISTANT}")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Text("USAGE_ASSISTANT=${AudioAttributes.USAGE_ASSISTANT}")
+            }
+            if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+                Text("MODE_ASSISTANT_CONVERSATION=${AudioManager.MODE_ASSISTANT_CONVERSATION}")
+            }
             Text(devices)
             Text(
                 "Do not call audioManager.mode = MODE_ASSISTANT_CONVERSATION from a normal app; " +

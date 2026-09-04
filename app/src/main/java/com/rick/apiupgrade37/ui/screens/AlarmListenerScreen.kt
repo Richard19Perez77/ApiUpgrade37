@@ -3,6 +3,7 @@ package com.rick.apiupgrade37.ui.screens
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
 import android.os.SystemClock
 import android.widget.Toast
 import androidx.compose.material3.Button
@@ -32,13 +33,15 @@ fun AlarmListenerScreen(onBack: () -> Unit) {
                     val am = context.getSystemService(AlarmManager::class.java)
                     val trigger = SystemClock.elapsedRealtime() + 8_000
                     if (AndroidApis.isAndroid17) {
-                        am.setExactAndAllowWhileIdle(
-                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            trigger,
-                            "api37-demo",
-                            ContextCompat.getMainExecutor(context)
-                        ) {
-                            Toast.makeText(context, "OnAlarmListener fired", Toast.LENGTH_SHORT).show()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                            am.setExactAndAllowWhileIdle(
+                                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                trigger,
+                                "api37-demo",
+                                ContextCompat.getMainExecutor(context)
+                            ) {
+                                Toast.makeText(context, "OnAlarmListener fired", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     } else {
                         val pi = PendingIntent.getBroadcast(
@@ -47,7 +50,15 @@ fun AlarmListenerScreen(onBack: () -> Unit) {
                             Intent("com.rick.apiupgrade37.DEMO_ALARM"),
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
-                        am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi)
+                        try {
+                            am.setExactAndAllowWhileIdle(
+                                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                trigger,
+                                pi
+                            )
+                        } catch (_:  SecurityException) {
+
+                        }
                     }
                 }
             ) { Text("Schedule 8s allow-while-idle alarm") }

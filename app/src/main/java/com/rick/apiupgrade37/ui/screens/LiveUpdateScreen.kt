@@ -35,12 +35,16 @@ fun LiveUpdateScreen(onBack: () -> Unit) {
                 onClick = {
                     val nm = context.getSystemService(NotificationManager::class.java)
                     if (AndroidApis.isAndroid17) {
-                        val text = SpannableStringBuilder()
-                            .append("NONE ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_UNSPECIFIED), 0)
-                            .append("INFO ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_INFO), 0)
-                            .append("SAFE ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_SAFE), 0)
-                            .append("CAUTION ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_CAUTION), 0)
-                            .append("DANGER", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_DANGER), 0)
+                        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                            SpannableStringBuilder()
+                                .append("NONE ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_UNSPECIFIED), 0)
+                                .append("INFO ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_INFO), 0)
+                                .append("SAFE ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_SAFE), 0)
+                                .append("CAUTION ", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_CAUTION), 0)
+                                .append("DANGER", Notification.createSemanticStyleAnnotation(Notification.SEMANTIC_STYLE_DANGER), 0)
+                        } else {
+                            TODO("VERSION.SDK_INT < CINNAMON_BUN")
+                        }
                         val notification = Notification.Builder(context, ApiUpgrade37App.CHANNEL_LIVE)
                             .setSmallIcon(R.drawable.ic_stat_api)
                             .setContentTitle("Semantic Live Update")

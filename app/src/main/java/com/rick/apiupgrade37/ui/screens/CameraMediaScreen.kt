@@ -34,12 +34,16 @@ fun CameraMediaScreen(onBack: () -> Unit) {
                 "Pre-37: Camera2 INFO_SUPPORTED_HARDWARE_LEVEL only; RAW10/RAW12; HEVC/AV1."
         ) {
             Text(report)
-            Text("RAW14 constant = ${ImageFormat.RAW14}")
-            Text("VVC mime = ${MediaFormat.MIMETYPE_VIDEO_VVC}")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                Text("RAW14 constant = ${ImageFormat.RAW14}")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                Text("VVC mime = ${MediaFormat.MIMETYPE_VIDEO_VVC}")
+            }
             Text(
                 "CQ encode (API 37): MediaRecorder().setVideoEncodingQuality(/* quality */ 80)\n" +
                     "Pre-37: setVideoEncodingBitRate(bitrate) only. Quality overload: " +
-                    "${if (AndroidApis.isAndroid17) "available" else "compile-only"}"
+                        if (AndroidApis.isAndroid17) "available" else "compile-only"
             )
             // Touch the VideoEncoder table so you can jump-to-declaration in Studio.
             Text("Encoders: H264=${MediaRecorder.VideoEncoder.H264} HEVC=${MediaRecorder.VideoEncoder.HEVC}")
@@ -48,16 +52,19 @@ fun CameraMediaScreen(onBack: () -> Unit) {
 }
 
 private fun describeCameras(context: Context): String {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return "Camera2 N/A"
     val cm = context.getSystemService(CameraManager::class.java)
     return cm.cameraIdList.joinToString("\n") { id ->
         val chars = cm.getCameraCharacteristics(id)
         val type = if (AndroidApis.isAndroid17) {
-            when (chars.get(CameraCharacteristics.INFO_DEVICE_TYPE)) {
-                CameraMetadata.INFO_DEVICE_TYPE_BUILT_IN -> "BUILT_IN"
-                CameraMetadata.INFO_DEVICE_TYPE_EXTERNAL -> "EXTERNAL (USB)"
-                CameraMetadata.INFO_DEVICE_TYPE_VIRTUAL -> "VIRTUAL"
-                else -> "UNKNOWN"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                when (chars.get(CameraCharacteristics.INFO_DEVICE_TYPE)) {
+                    CameraMetadata.INFO_DEVICE_TYPE_BUILT_IN -> "BUILT_IN"
+                    CameraMetadata.INFO_DEVICE_TYPE_EXTERNAL -> "EXTERNAL (USB)"
+                    CameraMetadata.INFO_DEVICE_TYPE_VIRTUAL -> "VIRTUAL"
+                    else -> "UNKNOWN"
+                }
+            } else {
+                TODO("VERSION.SDK_INT < CINNAMON_BUN")
             }
         } else {
             "INFO_DEVICE_TYPE requires API 37"

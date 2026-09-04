@@ -27,13 +27,12 @@
     <!-- <uses-permission android:name="android.permission.READ_CONTACTS" /> -->
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.QUERY_ADVANCED_PROTECTION_MODE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Exact allow-while-idle alarms (API 31+ schedule policy still applies). -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
-    <!-- Optional: UWB DL-TDoA demo only starts after these are granted. -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.UWB_RANGING" />
 
     <!--

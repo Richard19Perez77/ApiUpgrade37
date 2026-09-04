@@ -1,5 +1,6 @@
 package com.rick.apiupgrade37.ui.screens
 
+import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedTextField
@@ -36,11 +37,13 @@ fun AccessibilityImeScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Type with a CJKV IME") }
             )
-            Text(
-                "Reference constants: " +
-                    "IN_COMPOSITION=${AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION} " +
-                    "COMMITTED=${AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME}"
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                Text(
+                    "Reference constants: " +
+                        "IN_COMPOSITION=${AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION} " +
+                        "COMMITTED=${AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME}"
+                )
+            }
             // View-based equivalent:
             // event.textChangeTypes = AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME
         }

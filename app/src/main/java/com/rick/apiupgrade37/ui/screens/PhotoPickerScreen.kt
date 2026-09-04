@@ -1,5 +1,7 @@
 package com.rick.apiupgrade37.ui.screens
 
+import android.os.Build
+import android.os.ext.SdkExtensions
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.PhotoPickerSelectionParams
 import android.widget.photopicker.PhotoPickerUiCustomizationParams
@@ -27,9 +29,14 @@ fun PhotoPickerScreen(onBack: () -> Unit) {
     }
 
     val uiParams = remember {
-        PhotoPickerUiCustomizationParams.Builder()
-            .setAspectRatio(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
-            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
+                Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22) {
+            PhotoPickerUiCustomizationParams.Builder()
+                .setAspectRatio(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
+                .build()
+        } else {
+            TODO("SdkExtensions.getExtensionVersion(UPSIDE_DOWN_CAKE) < 22")
+        }
     }
     val selection = remember {
         PhotoPickerSelectionParams.Builder()

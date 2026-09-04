@@ -3,6 +3,7 @@ package com.rick.apiupgrade37.ui.screens
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,13 +59,17 @@ fun JobSchedulerScreen(onBack: () -> Unit) {
 
 private fun dumpReasons(scheduler: JobScheduler): String = buildString {
     val id = DebugSampleJobService.JOB_ID
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         append("getPendingJobReason=").append(scheduler.getPendingJobReason(id)).append('\n')
     }
     if (AndroidApis.isAndroid17) {
-        val stats = scheduler.getPendingJobReasonStats(id)
+        val stats = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            scheduler.getPendingJobReasonStats(id)
+        } else {
+            TODO("VERSION.SDK_INT < CINNAMON_BUN")
+        }
         append("getPendingJobReasonStats:\n")
-        if (stats.isNullOrEmpty()) append("  (empty)\n")
+        if (stats.isEmpty()) append("  (empty)\n")
         else stats.forEach { (reason, duration) ->
             append("  reason=").append(reason).append(" duration=").append(duration).append('\n')
         }

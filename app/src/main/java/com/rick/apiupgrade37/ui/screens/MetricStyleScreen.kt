@@ -2,6 +2,7 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.app.Notification
 import android.app.NotificationManager
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,11 +26,15 @@ fun MetricStyleScreen(onBack: () -> Unit) {
             Button(
                 enabled = AndroidApis.isAndroid17,
                 onClick = {
-                    val heart = Notification.Metric(
-                        Notification.Metric.FixedInt(72, "bpm"),
-                        "Heart rate",
-                        Notification.SEMANTIC_STYLE_INFO
-                    )
+                    val heart = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                        Notification.Metric(
+                            Notification.Metric.FixedInt(72, "bpm"),
+                            "Heart rate",
+                            Notification.SEMANTIC_STYLE_INFO
+                        )
+                    } else {
+                        TODO("VERSION.SDK_INT < CINNAMON_BUN")
+                    }
                     val status = Notification.Metric(
                         Notification.Metric.FixedText("On time"),
                         "ETA",

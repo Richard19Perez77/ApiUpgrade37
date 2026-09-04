@@ -1,6 +1,7 @@
 package com.rick.apiupgrade37.ui.screens
 
 import android.content.Context
+import android.os.Build
 import android.security.advancedprotection.AdvancedProtectionManager
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,11 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
-        val mgr = context.getSystemService(AdvancedProtectionManager::class.java)
+        val mgr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            context.getSystemService(AdvancedProtectionManager::class.java)
+        } else {
+            TODO("VERSION.SDK_INT < BAKLAVA")
+        }
         val cb = AdvancedProtectionManager.Callback { value -> enabled = value }
         mgr?.registerAdvancedProtectionCallback(
             ContextCompat.getMainExecutor(context),
@@ -48,6 +53,10 @@ fun AdvancedProtectionScreen(onBack: () -> Unit) {
 
 private fun readEnabled(context: Context): Boolean {
     if (!AndroidApis.isAndroid17) return false
-    return context.getSystemService(AdvancedProtectionManager::class.java)
-        ?.isAdvancedProtectionEnabled == true
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        context.getSystemService(AdvancedProtectionManager::class.java)
+            ?.isAdvancedProtectionEnabled == true
+    } else {
+        TODO("VERSION.SDK_INT < BAKLAVA")
+    }
 }

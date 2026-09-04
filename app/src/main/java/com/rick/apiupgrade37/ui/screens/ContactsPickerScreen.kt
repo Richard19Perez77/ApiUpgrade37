@@ -2,6 +2,7 @@ package com.rick.apiupgrade37.ui.screens
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.provider.ContactsContract
 import android.provider.ContactsPickerSessionContract
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -64,16 +65,20 @@ fun ContactsPickerScreen(onBack: () -> Unit) {
             Button(
                 onClick = {
                     val intent = if (AndroidApis.isAndroid17) {
-                        Intent(ContactsPickerSessionContract.ACTION_PICK_CONTACTS).apply {
-                            putStringArrayListExtra(
-                                ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS,
-                                arrayListOf(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-                                    ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                            Intent(ContactsPickerSessionContract.ACTION_PICK_CONTACTS).apply {
+                                putStringArrayListExtra(
+                                    ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS,
+                                    arrayListOf(
+                                        ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
+                                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
+                                    )
                                 )
-                            )
-                            putExtra(ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT, 5)
-                            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                                putExtra(ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT, 5)
+                                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                            }
+                        } else {
+                            TODO("VERSION.SDK_INT < CINNAMON_BUN")
                         }
                     } else {
                         // Pre-37: classic picker (still valid) or request READ_CONTACTS and query the provider.

@@ -1,5 +1,6 @@
 package com.rick.apiupgrade37.ui.screens
 
+import android.os.Build
 import android.ranging.RangingManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -10,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import com.rick.apiupgrade37.core.AndroidApis
 import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
@@ -23,12 +23,18 @@ fun UwbRangingScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         if (!AndroidApis.isAndroid17) return@DisposableEffect onDispose { }
-        val rm = context.getSystemService(RangingManager::class.java)
+        val rm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            context.getSystemService(RangingManager::class.java)
+        } else {
+            TODO("VERSION.SDK_INT < BAKLAVA")
+        }
         val executor = Executors.newSingleThreadExecutor()
         val cb = RangingManager.RangingCapabilitiesCallback { caps ->
             val uwb = caps.uwbCapabilities
-            status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
-                "tech=${caps.technologyAvailability}"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                status = "uwb=${uwb != null} dlTdoa=${uwb?.isDlTdoaSupported} " +
+                    "tech=${caps.technologyAvailability}"
+            }
         }
         rm?.registerCapabilitiesCallback(executor, cb)
         onDispose {
