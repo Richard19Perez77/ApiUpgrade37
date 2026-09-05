@@ -16,6 +16,15 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
+ *
+ * BehaviorChangesScreen
+ *      Serves as a comprehensive checklist for API 37 migration:
+ *
+ *  The Big Picture
+ *      Automatic security improvements (little to no code changes)
+ *      Breaking changes that require specific fixes
+ *      Privacy enhancements that protect users
+ *
  * These fire only when targetSdk is 37+, even if the device already runs Android 17.
  *
  * - API 37: MessageQueue is lock-free. Tests should use TestLooperManager.peekWhen() / poll().
