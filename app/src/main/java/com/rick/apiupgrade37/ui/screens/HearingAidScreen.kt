@@ -14,6 +14,29 @@ import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
  *
+ *  Audio Enhancements for Hearing Aids and Assistant Apps
+ *      Shows how the platform now distinguishes
+ *          BLE Audio hearing aids from generic BLE headsets
+ *          Assistant Audio Streams independent of music volume
+ *          Assistant conversation mode for voice interaction
+ *
+ *  TYPE_BLE_HEARING_AID for precision
+ *  BLE Headset Detection for clarity
+ *  STREAM_ASSISTANT dedicated for focus
+ *  Assistant Volume is independent for control
+ *  Assistant Mode MODE_ASSISTANT_CONVERSATION offers Specialization
+ *
+ *  Why?
+ *      hearing aids are properly identified
+ *      no ducking applied, full audio
+ *      assistant has dedicated stream
+ *      volume keys control correct stream
+ *      bluetooth routing is per-stream
+ *
+ *  Android is making the platform more inclusive for hearing aid users and assistant apps.
+ *
+ *  Instead of treating all audio devices the same, the platform now recognizes specialized devices and streams with unique requirements.
+ *
  * - Pre-37: TYPE_HEARING_AID (classic, API 28) and TYPE_BLE_HEADSET lumped LE aids with generic LE headsets.
  *      USAGE_ASSISTANT existed from API 26 but shared media volume.
  *
