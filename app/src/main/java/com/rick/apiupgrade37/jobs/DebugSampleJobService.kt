@@ -5,10 +5,15 @@ import android.app.job.JobService
 import android.util.Log
 
 /**
+ *
+ * Dummy job service:
+ *      debug screen with real job id to inspect
+ *
  * Tiny JobService so [android.app.job.JobScheduler.getPendingJobReasonStats] has something
  * to inspect. API 37 adds that aggregated pending-reason map; older code used
  * [android.app.job.JobScheduler.getPendingJobReason] (API 34) or
  * [android.app.job.JobScheduler.getPendingJobReasonsHistory] (API 36).
+ *
  */
 class DebugSampleJobService : JobService() {
 
