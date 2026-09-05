@@ -20,6 +20,39 @@ import com.rick.apiupgrade37.ui.FeatureBody
 import com.rick.apiupgrade37.ui.FeatureScaffold
 
 /**
+ *
+ *  API 37:
+ *      Contacts Picker Session API
+ *          shows how apps can now select contacts and specific data fields without requiring the dangerous READ_CONTACTS permission.
+ *
+ *  what is it?
+ *      select specific contacts
+ *      choose which fields to share
+ *      grant temporary access
+ *      session based access
+ *
+ *  No longer reads all contacts!
+ *  Now has a privacy first approach!
+ *
+ *  Use Cases:
+ *      Messaging App
+ *      Invitation App
+ *      Profile App
+ *
+ *  fields to choose from
+ *      Phone.CONTENT_ITEM_TYPE	Calling
+ *      Email.CONTENT_ITEM_TYPE	Sending email
+ *      StructuredName.CONTENT_ITEM_TYPE
+ *      StructuredPostal.CONTENT_ITEM_TYPE
+ *      Organization.CONTENT_ITEM_TYPE
+ *      Nickname.CONTENT_ITEM_TYPE
+ *
+ *  Bonus:
+ *      can multiselect for batch operations
+ *      old apps get new UI
+ *      user chooses more data
+ *      better trust between users and groups
+ *
  * - API 37: ContactsPickerSessionContract.ACTION_PICK_CONTACTS returns a temporary session Uri for only the people and fields the user selected (no READ_CONTACTS).
  *
  * - Pre-37: Intent.ACTION_PICK on Contacts.CONTENT_URI, or READ_CONTACTS plus ContactsContract queries over the whole address book.
